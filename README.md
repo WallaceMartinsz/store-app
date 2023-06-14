@@ -2,7 +2,7 @@
 
 Um projeto de uma aplicação fullstack para apurar conhecimento.
 
-![alt text]()
+![alt text](https://github.com/WallaceMartinsz/store-app/blob/main/github/img-app.png?raw=true)
 ## O que foi usado
 
 - Java como backend utilizando Spring como framework;
