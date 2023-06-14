@@ -2,6 +2,7 @@ package com.wallace.store.controller;
 
 import com.wallace.store.model.Product;
 import com.wallace.store.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @Transactional
     public ResponseEntity<Product> insertProduct(@RequestBody Product p){
         if(p != null)
             return ResponseEntity.ok(repository.save(p));
@@ -40,6 +42,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<Product> deleteProduct(@PathVariable Long id){
         if (repository.existsById(id)) {
             repository.deleteById(id);
