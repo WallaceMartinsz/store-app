@@ -1,0 +1,18 @@
+.form__post{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+input{
+    margin: 10px;
+    padding: 10px 100px;
+    border-radius: 10px;
+}
+
+button{
+    padding: 10px;
+    margin: 5px;
+    border-radius: 10px;
+}

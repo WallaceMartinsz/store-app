@@ -11,9 +11,23 @@
     justify-content: center;
 }
 
+.add-product{
+    margin: 5px;
+    border-radius: 8px;
+    color: gray;
+    background-color: white;
+    padding: 10px;
+    cursor: pointer;
+    
+}
+
 .card-list {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.add-product:hover{
+    transition: all 1s ease-out;
 }
 
 

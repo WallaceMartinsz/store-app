@@ -3,9 +3,12 @@ import React, { useEffect, useState } from 'react';
 import Card from './components/Card';
 import fetchStoreData from './hooks/useProductData'
 import Header from './components/Header';
+import { ProductForm } from './components/Modal';
+
 
 function App() {
   const [data, setData] = useState([]);
+  const [showProductForm, setShowProductForm] = useState(false);
 
   useEffect(() => {
     fetchData(); 
@@ -20,6 +23,10 @@ function App() {
     }
   };
 
+  const handleToggleProductForm = () => {
+    setShowProductForm(!showProductForm);
+  };
+
   return (
     <div className="App">
       <Header />
@@ -27,6 +34,10 @@ function App() {
         <h1>
           Produtos em estoque!
         </h1>
+        <button className='add-product' onClick={handleToggleProductForm}>
+          {showProductForm ? 'Fechar formulário' : 'Adicionar produto'}
+        </button>
+        {showProductForm && <ProductForm />}
         <div className='card-list'>
           {data?.map(productData => 
             <Card key={productData.id}
