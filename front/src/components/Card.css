@@ -26,6 +26,13 @@
     font-size: 12px;
 }
 
+.card button{
+    background-color: white;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
 
 @media screen and (max-width:768px){
    .card{

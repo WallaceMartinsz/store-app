@@ -23,6 +23,18 @@ function App() {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await fetch(`http://localhost:8080/store/${productId}`, {
+        method: "DELETE",
+      });
+      const updatedData = await fetchStoreData();
+      setData(updatedData.data);
+    } catch (error) {
+      console.error("Erro ao excluir o produto:", error);
+    }
+  };
+
   const handleToggleProductForm = () => {
     setShowProductForm(!showProductForm);
   };
@@ -45,6 +57,7 @@ function App() {
               name={productData.name}
               title={productData.title}
               price={productData.price}
+              onDelete={() => handleDeleteProduct(productData.id)}
             />)}
         </div>
       </section>
