@@ -2,7 +2,17 @@
 
 Um projeto de uma aplicação fullstack para apurar conhecimento.
 
-![alt text](https://github.com/WallaceMartinsz/store-app/blob/main/github/img-app.png?raw=true)
+<table>
+  <tr>
+    <td>
+      <img src="https://github.com/WallaceMartinsz/store-app/blob/main/github/img-app.png?raw=true" alt="Imagem app initial">
+    </td>
+    <td>
+      <img src="https://github.com/WallaceMartinsz/store-app/blob/main/github/add-prduct.png?raw=true" alt="Imagem app add method post">
+    </td>
+  </tr>
+</table>
+
 ## O que foi usado
 
 - Java como backend utilizando Spring como framework;
@@ -11,10 +21,11 @@ Um projeto de uma aplicação fullstack para apurar conhecimento.
 
 ## Funcionalidades
 
-- No momento como funcionalidade só tem a listagem dos produtos cadastrados no BD.
+- Listagem dos produtos inseridos
+- Cadastro dos produtos
 
 ## Melhorias
 
-- Em breve irei adicionar método POST, PUT e DELETE, para conseguir cadastrar, atualizar e deletar o produto.
+- Em breve irei adicionar método PUT e DELETE, para conseguir atualizar e deletar o produto.
 - Refatoração e melhorias no código.
 
