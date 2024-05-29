@@ -5,9 +5,8 @@ function Header(){
         <header>
             <h1>Store</h1>
             <ul>
-                <li>Teste</li>
-                <li>Teste</li>
-                <li>Teste</li>
+                <li>Home</li>
+                <li>Cadastrar produto</li>
             </ul>
         </header>
     );
