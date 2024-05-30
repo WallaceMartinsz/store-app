@@ -19,6 +19,7 @@ public class Product {
     private String name;
     private String title;
     private double price;
+    @Column(length = 2048)
     private String img;
 
 }
