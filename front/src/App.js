@@ -1,23 +1,24 @@
-import './App.css'
+import './App.css';
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Card from './components/Card';
-import fetchStoreData from './hooks/useProductData'
+import fetchStoreData from './hooks/useProductData';
 import Header from './components/Header';
-import { ProductForm } from './components/Modal';
-
+import CreateProduto from './page/produto/CreateProduto';
 
 function App() {
   const [data, setData] = useState([]);
-  const [showProductForm, setShowProductForm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData(); 
+    fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await fetchStoreData(); 
-      setData(response.data); 
+      const response = await fetchStoreData();
+      setData(response.data);
+      setLoading(false);
     } catch (error) {
       console.error('Erro ao buscar os dados:', error);
     }
@@ -35,33 +36,37 @@ function App() {
     }
   };
 
-  const handleToggleProductForm = () => {
-    setShowProductForm(!showProductForm);
-  };
-
   return (
-    <div className="App">
-      <Header />
-      <section className='index'>
-        <h1>
-          Produtos em estoque!
-        </h1>
-        <button className='add-product' onClick={handleToggleProductForm}>
-          {showProductForm ? 'Fechar formulário' : 'Adicionar produto'}
-        </button>
-        {showProductForm && <ProductForm />}
-        <div className='card-list'>
-          {data?.map(productData => 
-            <Card key={productData.id}
-              img={productData.img}
-              name={productData.name}
-              title={productData.title}
-              price={productData.price}
-              onDelete={() => handleDeleteProduct(productData.id)}
-            />)}
-        </div>
-      </section>
-    </div>
+    <Router>
+        <Header />
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <section className='index'>
+                <h1>Produtos em estoque</h1>
+                {loading ? (
+                  <p>Carregando...</p>
+                ) : data.length === 0 ? (
+                  <p>Nenhum produto cadastrado.</p>
+                ) : (
+                  <div className='card-list'>
+                    {data.map(productData => 
+                      <Card key={productData.id}
+                        img={productData.img}
+                        name={productData.name}
+                        title={productData.title}
+                        price={productData.price}
+                        onDelete={() => handleDeleteProduct(productData.id)}
+                      />)}
+                  </div>
+                )}
+              </section>
+            } 
+          />
+          <Route path="/add-product" element={<CreateProduto />} />
+        </Routes>
+    </Router>
   );
 }
 

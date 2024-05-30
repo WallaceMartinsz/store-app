@@ -1,8 +1,9 @@
+import './CreateProduto.css';
 import React, { useState } from "react";
-import Modal from "react-modal";
-import './Modal.css'
+import { useNavigate } from 'react-router-dom';
 
-export function ProductForm() {
+function CreateProduto() {
+  const navigate = useNavigate();
   const [product, setProduct] = useState({
     name: "",
     title: "",
@@ -11,9 +12,7 @@ export function ProductForm() {
   });
 
   const [formErrors, setFormErrors] = useState({});
-
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const handleChange = (e) => {
     setProduct({
@@ -21,15 +20,15 @@ export function ProductForm() {
       [e.target.name]: e.target.value,
     });
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
-    return;
-  }
+      return;
+    }
 
     fetch("http://localhost:8080/store", {
       method: "POST",
@@ -40,93 +39,95 @@ export function ProductForm() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setModalMessage("Produto cadastrado com sucesso");
-        setModalIsOpen(true);
+        setFeedbackMessage("Produto cadastrado com sucesso");
         setFormErrors({});
+        setTimeout(() => {
+          navigate('/');
+        }, 500);
       })
       .catch((error) => {
-        setModalMessage("Erro ao cadastrar o produto");
-        setModalIsOpen(true);
-        
+        setFeedbackMessage("Erro ao cadastrar o produto");
       });
 
     setProduct({
-        name: "",
-        title: "",
-        price: 0,
-        img: ""
+      name: "",
+      title: "",
+      price: 0,
+      img: ""
     });
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalMessage("");
   };
 
   const validateForm = () => {
     const errors = {};
-  
+
     if (!product.name) {
       errors.name = "O nome é obrigatório.";
     }
-  
+
     if (!product.title) {
       errors.title = "O título é obrigatório.";
     }
-  
+
     if (!product.price) {
       errors.price = "O preço é obrigatório.";
     }
-  
+
     if (!product.img) {
       errors.img = "A imagem é obrigatória.";
     }
-  
+
     return errors;
   };
 
   return (
-    
-    <div>
+    <div className="form-container">
       <form className="form__post" onSubmit={handleSubmit}>
         <label>Nome</label>
-        <input type="text" 
-        name="name" 
-        value={product.name}
-        onChange={handleChange}
-        placeholder="Digite o nome do produto"></input>
+        <input
+          type="text"
+          name="name"
+          value={product.name}
+          onChange={handleChange}
+          placeholder="Digite o nome do produto"
+        />
         {formErrors.name && <span className="error">{formErrors.name}</span>}
 
-        <label>Titulo</label>
-        <input type="text" 
-        name="title" 
-        value={product.title}
-        onChange={handleChange}
-        placeholder="Digite o título do produto"></input>
+        <label>Título</label>
+        <input
+          type="text"
+          name="title"
+          value={product.title}
+          onChange={handleChange}
+          placeholder="Digite o título do produto"
+        />
         {formErrors.title && <span className="error">{formErrors.title}</span>}
 
         <label>Preço</label>
-        <input type="number" 
-        name="price" 
-        value={product.price}
-        onChange={handleChange}
-        placeholder="Digite o preço do produto"></input>
+        <input
+          type="number"
+          name="price"
+          value={product.price}
+          onChange={handleChange}
+          placeholder="Digite o preço do produto"
+        />
         {formErrors.price && <span className="error">{formErrors.price}</span>}
 
         <label>Imagem</label>
-        <input type="text"
-        name="img" 
-        value={product.img}
-        onChange={handleChange}
-        placeholder="Cole o link da imagem do produto"></input>
+        <input
+          type="text"
+          name="img"
+          value={product.img}
+          onChange={handleChange}
+          placeholder="Cole o link da imagem do produto"
+        />
         {formErrors.img && <span className="error">{formErrors.img}</span>}
+        
         <button type="submit">Cadastrar</button>
       </form>
 
-      <Modal isOpen={modalIsOpen} onRequestClose={closeModal}>
-        <h2>{modalMessage}</h2>
-        <button onClick={closeModal}>Fechar</button>
-      </Modal>
+      {feedbackMessage && <div className="feedback">{feedbackMessage}</div>}
     </div>
   );
 }
+
+export default CreateProduto;
