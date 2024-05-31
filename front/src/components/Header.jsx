@@ -6,6 +6,7 @@ function Header() {
   return (
     <header className="header">
       <nav>
+        <h1>Store</h1>
         <ul>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/add-product">Adicionar Produto</Link></li>
