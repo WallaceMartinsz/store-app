@@ -41,6 +41,22 @@ public class ProductController {
             return ResponseEntity.badRequest().build();
     }
 
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product p){
+        if (repository.existsById(id)){
+            var produto = repository.getReferenceById(id);
+            produto.setName(p.getName());
+            produto.setTitle(p.getTitle());
+            produto.setImg(p.getImg());
+            produto.setPrice(p.getPrice());
+            return ResponseEntity.ok(produto);
+        }
+        else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Product> deleteProduct(@PathVariable Long id){
