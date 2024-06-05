@@ -12,6 +12,7 @@
     word-break: normal;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
 }
 
 .card:hover {
@@ -39,19 +40,36 @@
     margin: 0 10px 15px;
 }
 
-.card button {
+.card .delete-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
     background-color: red;
     color: white;
     padding: 10px 15px;
-    margin: 10px 0;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.card button:hover {
+.card .delete-button:hover {
     background-color: #000000;
+}
+
+.card .edit-link {
+    margin-top: auto;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.card .edit-link:hover {
+    background-color: #0056b3;
 }
 
 @media screen and (max-width: 768px) {
@@ -69,7 +87,12 @@
         font-size: 12px;
     }
 
-    .card button {
+    .card .delete-button {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .card .edit-link {
         padding: 5px 10px;
         font-size: 12px;
     }

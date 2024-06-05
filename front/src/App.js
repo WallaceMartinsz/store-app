@@ -5,6 +5,7 @@ import Card from './components/Card';
 import fetchStoreData from './hooks/useProductData';
 import Header from './components/Header';
 import CreateProduto from './page/produto/CreateProduto';
+import EditProduto from './page/produto/EditProduto';
 
 function App() {
   const [data, setData] = useState([]);
@@ -53,6 +54,7 @@ function App() {
                   <div className='card-list'>
                     {data.map(productData => 
                       <Card key={productData.id}
+                        id={productData.id}
                         img={productData.img}
                         name={productData.name}
                         title={productData.title}
@@ -65,6 +67,7 @@ function App() {
             } 
           />
           <Route path="/add-product" element={<CreateProduto />} />
+          <Route path="/edit-product/:id" element={<EditProduto />} />
         </Routes>
     </Router>
   );
