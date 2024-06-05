@@ -43,17 +43,17 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product p){
-        if (repository.existsById(id)){
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product p) {
+        if (repository.existsById(id)) {
             var produto = repository.getReferenceById(id);
             produto.setName(p.getName());
             produto.setTitle(p.getTitle());
             produto.setImg(p.getImg());
             produto.setPrice(p.getPrice());
+            repository.save(produto);
             return ResponseEntity.ok(produto);
-        }
-        else {
-            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
