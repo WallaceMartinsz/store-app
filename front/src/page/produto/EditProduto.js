@@ -32,7 +32,7 @@ const EditProduto = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch(`http://localhost:8080/store/${id}`, {
+      await fetch(`http://54.174.67.250:8080/store/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
