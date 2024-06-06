@@ -45,7 +45,7 @@ function App() {
             path="/" 
             element={
               <section className='index'>
-                <h1>Produtos em estoque</h1>
+                <h1>Produtos em estoque.</h1>
                 {loading ? (
                   <p>Carregando...</p>
                 ) : data.length === 0 ? (
