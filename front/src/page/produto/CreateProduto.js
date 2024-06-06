@@ -30,7 +30,7 @@ function CreateProduto() {
       return;
     }
 
-    fetch("http://localhost:8080/store", {
+    fetch("http://54.174.67.250/store", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
