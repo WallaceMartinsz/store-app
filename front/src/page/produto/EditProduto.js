@@ -12,7 +12,7 @@ const EditProduto = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/store/${id}`);
+        const response = await fetch(`http://54.174.67.250:8080/store/${id}`);
         const data = await response.json();
         setProduct(data);
         setLoading(false);

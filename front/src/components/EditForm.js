@@ -20,7 +20,7 @@ const EditForm = ({ product, onSave }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Nomess:</label>
+        <label>Nomes:</label>
         <input
           type="text"
           name="name"

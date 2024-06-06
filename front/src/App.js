@@ -27,7 +27,7 @@ function App() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      await fetch(`http://localhost:8080/store/${productId}`, {
+      await fetch(`http://54.174.67.250:8080/store/${productId}`, {
         method: "DELETE",
       });
       const updatedData = await fetchStoreData();
