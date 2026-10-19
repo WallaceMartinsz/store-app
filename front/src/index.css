@@ -1,6 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
+* {
+  box-sizing: border-box;
+}
 
-*{
-  overflow-x:  hidden;
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #111827;
+  font-family: 'Poppins', Arial, sans-serif;
+}
+
+img {
+  display: block;
 }

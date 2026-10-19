@@ -1,72 +1,55 @@
 package com.wallace.store.controller;
 
-import com.wallace.store.model.Product;
-import com.wallace.store.repository.ProductRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wallace.store.dto.ProductRequest;
+import com.wallace.store.dto.ProductResponse;
+import com.wallace.store.service.ProductService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/store")
 public class ProductController {
+    private final ProductService productService;
 
-    @Autowired
-    private ProductRepository repository;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts(){
-        return ResponseEntity.ok(repository.findAll());
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        return ResponseEntity.ok(productService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable Long id) {
-        Optional<Product> product = repository.findById(id);
-        if (product.isPresent())
-            return ResponseEntity.ok(product.get());
-        else
-            return ResponseEntity.notFound().build();
-
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.findById(id));
     }
 
     @PostMapping
-    @Transactional
-    public ResponseEntity<Product> insertProduct(@RequestBody Product p){
-        if(p != null)
-            return ResponseEntity.ok(repository.save(p));
-        else
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<ProductResponse> insertProduct(@RequestBody @Valid ProductRequest request) {
+        ProductResponse product = productService.create(request);
+        URI location = URI.create("/store/" + product.id());
+
+        return ResponseEntity.created(location).body(product);
     }
 
     @PutMapping("/{id}")
-    @Transactional
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product p) {
-        if (repository.existsById(id)) {
-            var produto = repository.getReferenceById(id);
-            produto.setName(p.getName());
-            produto.setTitle(p.getTitle());
-            produto.setImg(p.getImg());
-            produto.setPrice(p.getPrice());
-            repository.save(produto);
-            return ResponseEntity.ok(produto);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable Long id,
+            @RequestBody @Valid ProductRequest request
+    ) {
+        return ResponseEntity.ok(productService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Transactional
-    public ResponseEntity<Product> deleteProduct(@PathVariable Long id){
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return ResponseEntity.ok().build();
-        }
-        else {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProduct(@PathVariable Long id) {
+        productService.delete(id);
     }
 
 }

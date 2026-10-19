@@ -1,0 +1,14 @@
+# environment
+.env
+.env.local
+.env.*.local
+
+# frontend
+front/node_modules/
+front/build/
+
+# backend
+back/target/
+
+# logs
+*.log
