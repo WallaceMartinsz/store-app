@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { useCart } from '../../cart/CartContext';
 import { formatCurrency } from '../../utils/formatters';
@@ -6,7 +6,7 @@ import { formatCurrency } from '../../utils/formatters';
 const CartPage = () => {
   const navigate = useNavigate();
   const { isVisitor, session } = useAuth();
-  const { checkout, items, removeItem, total, updateQuantity } = useCart();
+  const { checkout, items, removeItem, shipping, subtotal, total, updateQuantity } = useCart();
 
   const handleCheckout = () => {
     if (!isVisitor) {
@@ -31,7 +31,10 @@ const CartPage = () => {
       </div>
 
       {items.length === 0 ? (
-        <p>Seu carrinho esta vazio.</p>
+        <div className="empty-state">
+          <p>Seu carrinho está vazio.</p>
+          <Link className="button" to="/">Continuar comprando</Link>
+        </div>
       ) : (
         <>
           <div className="data-table-wrapper">
@@ -54,6 +57,7 @@ const CartPage = () => {
                       <input
                         className="quantity-input"
                         min="1"
+                        max={item.product.quantity}
                         type="number"
                         value={item.quantity}
                         onChange={(event) => updateQuantity(item.product.id, Number(event.target.value))}
@@ -70,12 +74,12 @@ const CartPage = () => {
               </tbody>
             </table>
           </div>
-          <div className="frete">
-            <p>Frete: {formatCurrency(10.0)}</p>
-          </div>
-
           <div className="cart-summary">
-            <strong>Total: {formatCurrency(total)}</strong>
+            <dl className="cart-summary__lines">
+              <div><dt>Subtotal</dt><dd>{formatCurrency(subtotal)}</dd></div>
+              <div><dt>Frete</dt><dd>{formatCurrency(shipping)}</dd></div>
+              <div className="cart-summary__total"><dt>Total</dt><dd>{formatCurrency(total)}</dd></div>
+            </dl>
             <button className="button" type="button" onClick={handleCheckout}>Finalizar compra</button>
           </div>
         </>

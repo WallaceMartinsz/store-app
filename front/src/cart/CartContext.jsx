@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
+export const SHIPPING_FEE = 10;
 const CART_KEY = 'store-app-cart';
 const ORDERS_KEY = 'store-app-orders';
 const CartContext = createContext(null);
@@ -46,6 +47,10 @@ export const CartProvider = ({ children }) => {
     const existingItem = items.find((item) => item.product.id === product.id);
 
     if (existingItem) {
+      if (existingItem.quantity >= product.quantity) {
+        return;
+      }
+
       persistItems(items.map((item) =>
         item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
       ));
@@ -55,7 +60,10 @@ export const CartProvider = ({ children }) => {
     persistItems([...items, { product, quantity: 1 }]);
   };
 
-  const updateQuantity = (productId, quantity) => {
+  const updateQuantity = (productId, requestedQuantity) => {
+    const item = items.find((cartItem) => cartItem.product.id === productId);
+    const quantity = Math.min(requestedQuantity, item?.product.quantity ?? requestedQuantity);
+
     if (quantity <= 0) {
       persistItems(items.filter((item) => item.product.id !== productId));
       return;
@@ -84,7 +92,8 @@ export const CartProvider = ({ children }) => {
       visitorEmail: session.visitor.email,
       createdAt: new Date().toISOString(),
       items,
-      total: getCartTotal(items)
+      shipping: SHIPPING_FEE,
+      total: getCartTotal(items) + SHIPPING_FEE
     };
 
     persistOrders([order, ...orders]);
@@ -103,7 +112,9 @@ export const CartProvider = ({ children }) => {
   const value = {
     items,
     itemCount: getCartCount(items),
-    total: getCartTotal(items),
+    subtotal: getCartTotal(items),
+    shipping: items.length > 0 ? SHIPPING_FEE : 0,
+    total: items.length > 0 ? getCartTotal(items) + SHIPPING_FEE : 0,
     orders: visitorOrders,
     addItem,
     updateQuantity,
