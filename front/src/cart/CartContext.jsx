@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
 const CART_KEY = 'store-app-cart';
@@ -34,6 +34,13 @@ export const CartProvider = ({ children }) => {
     setOrders(nextOrders);
     saveJson(ORDERS_KEY, nextOrders);
   };
+
+  useEffect(() => {
+    if (session?.type === 'admin') {
+      persistItems([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.type]);
 
   const addItem = (product) => {
     const existingItem = items.find((item) => item.product.id === product.id);

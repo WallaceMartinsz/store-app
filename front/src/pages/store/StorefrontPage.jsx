@@ -7,22 +7,36 @@ const StorefrontPage = () => {
   const { products, loading, error } = useProducts();
 
   return (
-    <section className="content-section">
-      <div className="page-heading">
-        <h1>Produtos da loja</h1>
-        <p>Catalogo publico para o comprador visualizar produtos e montar o carrinho.</p>
-      </div>
+    <div>
+      <section className="hero">
+        <p className="hero__eyebrow">Periféricos & Acessórios</p>
+        <h1 className="hero__heading">
+          Monte seu <span>setup</span>.<br />Sem complicação.
+        </h1>
+        <p className="hero__sub">
+          Seleção de periféricos e acessórios para quem leva a experiência a sério.
+        </p>
+      </section>
 
-      {loading && <p>Carregando produtos...</p>}
-      {error && <p className="feedback feedback--error">{error}</p>}
-      {!loading && !error && products.length === 0 && <p>Nenhum produto disponivel.</p>}
+      <section className="content-section">
+        <div className="section-header">
+          <h2 className="section-header__title">Em estoque</h2>
+          <span className="section-header__count">{products.length} produtos</span>
+        </div>
 
-      <div className="product-grid">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} onAddToCart={addItem} />
-        ))}
-      </div>
-    </section>
+        {loading && <p className="feedback">Carregando produtos...</p>}
+        {error && <p className="feedback feedback--error">{error}</p>}
+        {!loading && !error && products.length === 0 && (
+          <p style={{ color: '#94a3b8' }}>Nenhum produto disponível.</p>
+        )}
+
+        <div className="product-grid">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} onAddToCart={addItem} />
+          ))}
+        </div>
+      </section>
+    </div>
   );
 };
 

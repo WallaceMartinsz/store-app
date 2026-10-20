@@ -68,7 +68,7 @@ const LoginPage = () => {
   return (
     <main className="login-page">
       <section className="login-panel">
-        <Link className="brand" to="/">Store</Link>
+        <Link className="brand" to="/">Load<span>out</span></Link>
         <div className="page-heading">
           <h1>Entrar na loja</h1>
           <p>Escolha visitante para comprar ou admin para gerenciar estoque e vendas.</p>

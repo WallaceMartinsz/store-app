@@ -10,7 +10,7 @@ const StoreLayout = () => {
     <div className="app-shell">
       <header className="topbar">
         <Link className="brand" to="/">
-          Store
+          Load<span>out</span>
         </Link>
         <nav className="topbar__nav">
           <Link to="/">Loja</Link>
