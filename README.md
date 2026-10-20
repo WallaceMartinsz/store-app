@@ -3,6 +3,8 @@
 Aplicacao fullstack de loja virtual construida com **React**, **Spring Boot** e **MySQL**.
 O projeto tem duas experiencias principais: uma area publica para visitantes comprarem e uma area administrativa para gerenciar produtos.
 
+![Tela inicial da loja](.github/storefront.png)
+
 ## O Que O Projeto Faz
 
 - Lista produtos disponiveis na loja.
