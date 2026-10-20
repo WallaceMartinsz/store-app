@@ -8,7 +8,7 @@ const AdminLayout = () => {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <Link className="brand" to="/admin">
-          Store Admin
+          Load<span>out</span> Admin
         </Link>
         <span className="session-label">{session?.username}</span>
         <nav className="admin-sidebar__nav">
