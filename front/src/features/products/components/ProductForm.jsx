@@ -1,15 +1,21 @@
 import { useState } from 'react';
+import { CATEGORIES } from '../categories';
 
 const INITIAL_PRODUCT = {
   name: '',
   title: '',
   price: '',
   quantity: 0,
+  category: '',
   img: ''
 };
 
 const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', onSubmit }) => {
-  const [product, setProduct] = useState({ ...INITIAL_PRODUCT, ...initialValues });
+  const [product, setProduct] = useState({
+    ...INITIAL_PRODUCT,
+    ...initialValues,
+    category: initialValues.category || ''
+  });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -42,6 +48,10 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
 
     if (product.quantity === '' || !Number.isInteger(Number(product.quantity)) || Number(product.quantity) < 0) {
       formErrors.quantity = 'Informe uma quantidade valida.';
+    }
+
+    if (!product.category) {
+      formErrors.category = 'Selecione uma categoria.';
     }
 
     return formErrors;
@@ -81,6 +91,17 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
         Descricao
         <input name="title" type="text" value={product.title} onChange={handleChange} />
         {errors.title && <span className="field-error">{errors.title}</span>}
+      </label>
+
+      <label>
+        Categoria
+        <select name="category" value={product.category} onChange={handleChange}>
+          <option value="" disabled>Selecione...</option>
+          {CATEGORIES.map((category) => (
+            <option key={category.value} value={category.value}>{category.label}</option>
+          ))}
+        </select>
+        {errors.category && <span className="field-error">{errors.category}</span>}
       </label>
 
       <label>

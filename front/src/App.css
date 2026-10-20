@@ -397,6 +397,16 @@
   font-weight: 500;
 }
 
+.product-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #2a2d3a;
+  border-radius: 6px;
+  background: #0f1117;
+  color: #f1f5f9;
+  font: inherit;
+}
+
 .product-form input {
   width: 100%;
   box-sizing: border-box;

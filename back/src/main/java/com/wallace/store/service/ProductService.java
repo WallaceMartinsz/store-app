@@ -64,19 +64,21 @@ public class ProductService {
         product.setTitle(request.title().trim());
         product.setPrice(request.price());
         product.setQuantity(request.quantity());
+        product.setCategory(request.category());
         product.setImg(request.img().trim());
     }
 
     private ProductResponse toResponse(Product product) {
         return new ProductResponse(
-                        product.getId(),
-                        product.getName(),
-                        product.getTitle(),
-                        product.getPrice(),
+                product.getId(),
+                product.getName(),
+                product.getTitle(),
+                product.getPrice(),
                 product.getQuantity(),
+                product.getCategory(),
                 product.getImg(),
-                        product.getCreatedAt(),
-                        product.getUpdatedAt()
-                );
+                product.getCreatedAt(),
+                product.getUpdatedAt()
+        );
     }
 }
