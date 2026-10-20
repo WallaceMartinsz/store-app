@@ -63,6 +63,7 @@ public class ProductService {
         product.setName(request.name().trim());
         product.setTitle(request.title().trim());
         product.setPrice(request.price());
+        product.setQuantity(request.quantity());
         product.setImg(request.img().trim());
     }
 

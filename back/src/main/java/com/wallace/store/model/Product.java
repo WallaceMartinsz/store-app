@@ -32,7 +32,7 @@ public class Product {
     @Column(nullable = false, length = 2048)
     private String img;
 
-    @Column(nullable = false, precision = 10)
+    @Column(nullable = false)
     private Integer quantity;
 
     @Column(updatable = false)

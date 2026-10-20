@@ -40,7 +40,7 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
       formErrors.img = 'Informe a URL da imagem.';
     }
 
-    if (!product.quantity || Number(product.quantity) < 0) {
+    if (product.quantity === '' || !Number.isInteger(Number(product.quantity)) || Number(product.quantity) < 0) {
       formErrors.quantity = 'Informe uma quantidade valida.';
     }
 
@@ -61,7 +61,8 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
       setErrors({});
       await onSubmit({
         ...product,
-        price: Number(product.price)
+        price: Number(product.price),
+        quantity: Number(product.quantity)
       });
     } finally {
       setSubmitting(false);
@@ -84,7 +85,7 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
 
       <label>
         Quantidade
-        <input name="quantity" type="number" min="0" value={product.quantity} onChange={handleChange} />
+        <input name="quantity" type="number" min="0" step="1" value={product.quantity} onChange={handleChange} />
         {errors.quantity && <span className="field-error">{errors.quantity}</span>}
       </label>
 
