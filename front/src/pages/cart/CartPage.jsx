@@ -1,23 +1,41 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiErrorMessage, isUnauthorized } from '../../api/ordersApi';
 import { useAuth } from '../../auth/AuthContext';
 import { useCart } from '../../cart/CartContext';
 import { formatCurrency } from '../../utils/formatters';
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { isVisitor, session } = useAuth();
+  const { isVisitor, session, logout } = useAuth();
   const { checkout, items, removeItem, shipping, subtotal, total, updateQuantity } = useCart();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleCheckout = () => {
+  const goToLogin = () => navigate('/login', { state: { mode: 'visitor', from: '/cart' } });
+
+  const handleCheckout = async () => {
     if (!isVisitor) {
-      navigate('/login', { state: { mode: 'visitor', from: '/cart' } });
+      goToLogin();
       return;
     }
 
-    const order = checkout();
+    try {
+      setSubmitting(true);
+      setError('');
+      const order = await checkout();
+      navigate('/profile', { state: { createdOrderId: order.id } });
+    } catch (requestError) {
+      if (isUnauthorized(requestError)) {
+        // Sessao salva antes do token existir: precisa entrar de novo
+        logout();
+        goToLogin();
+        return;
+      }
 
-    if (order) {
-      navigate('/profile');
+      setError(getApiErrorMessage(requestError, 'Nao foi possivel finalizar a compra. Tente novamente.'));
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -29,6 +47,8 @@ const CartPage = () => {
           <p>{session?.visitor ? `Comprando como ${session.visitor.name}.` : 'Entre como visitante para finalizar a compra.'}</p>
         </div>
       </div>
+
+      {error && <p className="feedback feedback--error">{error}</p>}
 
       {items.length === 0 ? (
         <div className="empty-state">
@@ -80,7 +100,10 @@ const CartPage = () => {
               <div><dt>Frete</dt><dd>{formatCurrency(shipping)}</dd></div>
               <div className="cart-summary__total"><dt>Total</dt><dd>{formatCurrency(total)}</dd></div>
             </dl>
-            <button className="button" type="button" onClick={handleCheckout}>Finalizar compra</button>
+            <button className="button" type="button" onClick={handleCheckout} disabled={submitting}>
+              {submitting && <span className="spinner" aria-hidden="true" />}
+              {submitting ? 'Finalizando...' : 'Finalizar compra'}
+            </button>
           </div>
         </>
       )}

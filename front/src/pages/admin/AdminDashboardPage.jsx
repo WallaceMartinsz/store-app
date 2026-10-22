@@ -4,7 +4,7 @@ const AdminDashboardPage = () => (
   <section className="content-section">
     <div className="page-heading">
       <h1>Painel administrativo</h1>
-      <p>Area para acompanhar estoque, produtos cadastrados e vendas quando o backend evoluir.</p>
+      <p>Acompanhe o estoque, os produtos cadastrados e os pedidos da loja.</p>
     </div>
 
     <div className="admin-summary">

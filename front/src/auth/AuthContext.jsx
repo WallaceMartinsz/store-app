@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
     return nextSession;
   };
 
-  const loginVisitor = async ({ email }) => {
-    const response = await authApi.loginVisitor(email);
+  const loginVisitor = async ({ email, password }) => {
+    const response = await authApi.loginVisitor(email, password);
     const nextSession = {
       type: 'visitor',
       visitor: response.data

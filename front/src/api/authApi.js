@@ -11,7 +11,7 @@ export const authApi = {
     });
   },
   registerVisitor: (visitor) => httpClient.post('/auth/visitors', visitor),
-  loginVisitor: (email) => httpClient.post('/auth/visitors/login', { email })
+  loginVisitor: (email, password) => httpClient.post('/auth/visitors/login', { email, password })
 };
 
 export default authApi;

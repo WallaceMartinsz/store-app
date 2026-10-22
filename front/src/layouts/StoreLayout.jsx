@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from
 import { LayoutDashboard, LogOut, Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useCart } from '../cart/CartContext';
+import CartToast from '../cart/CartToast';
 import { CATEGORIES } from '../features/products/categories';
 
 const StoreLayout = () => {
@@ -56,8 +57,9 @@ const StoreLayout = () => {
               <span>{session ? `Olá, ${firstName}` : 'Entrar'}</span>
             </Link>
             <Link className="topbar__action topbar__cart" to="/cart" aria-label={`Carrinho com ${itemCount} itens`}>
-              <ShoppingCart size={20} />
-              {itemCount > 0 && <span className="topbar__badge">{itemCount}</span>}
+              {/* key muda com a quantidade e reinicia a animacao de "pulo" do icone e do contador */}
+              <ShoppingCart key={`icon-${itemCount}`} className={itemCount > 0 ? 'cart-bump' : ''} size={20} />
+              {itemCount > 0 && <span key={`badge-${itemCount}`} className="topbar__badge">{itemCount}</span>}
             </Link>
             {session && (
               <button className="topbar__action link-button" type="button" onClick={logout} aria-label="Sair">
@@ -86,6 +88,8 @@ const StoreLayout = () => {
       <main className="page">
         <Outlet />
       </main>
+
+      <CartToast />
 
       <footer className="footer">
         <div className="footer__inner">

@@ -4,18 +4,23 @@ import com.wallace.store.dto.VisitorLoginRequest;
 import com.wallace.store.dto.VisitorRequest;
 import com.wallace.store.dto.VisitorResponse;
 import com.wallace.store.exception.BusinessException;
-import com.wallace.store.exception.VisitorNotFoundException;
+import com.wallace.store.exception.InvalidCredentialsException;
 import com.wallace.store.model.Visitor;
 import com.wallace.store.repository.VisitorRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 public class VisitorService {
     private final VisitorRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public VisitorService(VisitorRepository repository) {
+    public VisitorService(VisitorRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -29,18 +34,37 @@ public class VisitorService {
         Visitor visitor = new Visitor();
         visitor.setName(request.name().trim());
         visitor.setEmail(email);
+        visitor.setPassword(passwordEncoder.encode(request.password()));
         visitor.setPhone(normalizeOptional(request.phone()));
+        visitor.setAccessToken(newToken());
 
         return toResponse(repository.save(visitor));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public VisitorResponse login(VisitorLoginRequest request) {
         String email = normalizeEmail(request.email());
+        // Mesma resposta para e-mail inexistente e senha errada, para nao revelar quem tem cadastro
+        Visitor visitor = repository.findByEmailIgnoreCase(email)
+                .filter((found) -> passwordMatches(request.password(), found.getPassword()))
+                .orElseThrow(InvalidCredentialsException::new);
 
-        return repository.findByEmailIgnoreCase(email)
-                .map(this::toResponse)
-                .orElseThrow(() -> new VisitorNotFoundException(email));
+        if (visitor.getAccessToken() == null) {
+            visitor.setAccessToken(newToken());
+        }
+
+        return toResponse(visitor);
+    }
+
+    private boolean passwordMatches(String rawPassword, String encodedPassword) {
+        // Visitantes criados antes da senha existir ficam sem hash e nao conseguem entrar
+        return encodedPassword != null
+                && !encodedPassword.isBlank()
+                && passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    private String newToken() {
+        return UUID.randomUUID().toString();
     }
 
     private String normalizeEmail(String email) {
@@ -51,7 +75,6 @@ public class VisitorService {
         if (value == null || value.isBlank()) {
             return null;
         }
-
         return value.trim();
     }
 
@@ -61,7 +84,8 @@ public class VisitorService {
                 visitor.getName(),
                 visitor.getEmail(),
                 visitor.getPhone(),
-                visitor.getCreatedAt()
+                visitor.getCreatedAt(),
+                visitor.getAccessToken()
         );
     }
 }

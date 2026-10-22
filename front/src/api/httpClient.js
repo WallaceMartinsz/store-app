@@ -22,6 +22,10 @@ httpClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Basic ${session.token}`;
   }
 
+  if (session?.type === 'visitor' && session?.visitor?.accessToken) {
+    config.headers['X-Visitor-Token'] = session.visitor.accessToken;
+  }
+
   return config;
 });
 

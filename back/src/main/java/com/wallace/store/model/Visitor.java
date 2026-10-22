@@ -24,8 +24,18 @@ public class Visitor {
     @Column(nullable = false, unique = true, length = 160)
     private String email;
 
-    @Column(length = 30)
+    // Hash BCrypt (60 caracteres), nunca a senha em texto puro
+    @ToString.Exclude
+    @Column(nullable = false, length = 60)
+    private String password;
+
+    @Column(length = 11)
     private String phone;
+
+    // Token opaco usado pelo front no header X-Visitor-Token para identificar o visitante
+    @ToString.Exclude
+    @Column(unique = true, length = 36)
+    private String accessToken;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

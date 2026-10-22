@@ -1,5 +1,6 @@
 package com.wallace.store.security;
 
+import com.wallace.store.repository.VisitorRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -22,7 +24,7 @@ public class SecurityConfig {
     private String adminPassword;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, VisitorRepository visitorRepository) throws Exception {
         return http
                 .csrf((csrf) -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -35,9 +37,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/store/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/store/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/store/**").hasRole("ADMIN")
+                        // Visitante cria e ve so os proprios pedidos; admin ve todos e altera o status
+                        .requestMatchers(HttpMethod.POST, "/orders").hasRole(VisitorTokenFilter.ROLE)
+                        .requestMatchers(HttpMethod.GET, "/orders/me").hasRole(VisitorTokenFilter.ROLE)
+                        .requestMatchers(HttpMethod.GET, "/orders").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orders/*").hasAnyRole("ADMIN", VisitorTokenFilter.ROLE)
+                        .requestMatchers(HttpMethod.PATCH, "/orders/*/status").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(new VisitorTokenFilter(visitorRepository), BasicAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }

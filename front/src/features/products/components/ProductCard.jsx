@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ImageOff, ShoppingCart } from 'lucide-react';
+import { Check, ImageOff, ShoppingCart } from 'lucide-react';
 import { formatCurrency } from '../../../utils/formatters';
 import { getCategoryLabel } from '../categories';
 
@@ -71,14 +71,14 @@ const ProductCard = ({ product, variant = 'store', onAddToCart, onDelete }) => {
           </>
         ) : (
           <button
-            className="button button--full"
+            className={`button button--full ${added ? 'button--added' : ''}`}
             type="button"
             onClick={handleAdd}
             disabled={isOutOfStock}
           >
             {isOutOfStock ? 'Indisponível' : (
               <>
-                <ShoppingCart size={16} /> {added ? 'Adicionado!' : 'Adicionar ao carrinho'}
+                {added ? <Check size={16} /> : <ShoppingCart size={16} />} {added ? 'Adicionado!' : 'Adicionar ao carrinho'}
               </>
             )}
           </button>
