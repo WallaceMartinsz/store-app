@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import Button from '../../../components/ui/button';
+import { cardClasses } from '../../../components/ui/card';
+import { Field, Input, Select } from '../../../components/ui/input';
+import { cn } from '../../../lib/utils';
 import { CATEGORIES } from '../categories';
 
 const INITIAL_PRODUCT = {
@@ -80,51 +84,39 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
   };
 
   return (
-    <form className="product-form" onSubmit={handleSubmit}>
-      <label>
-        Nome
-        <input name="name" type="text" value={product.name} onChange={handleChange} />
-        {errors.name && <span className="field-error">{errors.name}</span>}
-      </label>
+    <form className={cn(cardClasses, 'grid gap-4 p-5')} onSubmit={handleSubmit}>
+      <Field label="Nome" error={errors.name}>
+        <Input name="name" type="text" value={product.name} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Descricao
-        <input name="title" type="text" value={product.title} onChange={handleChange} />
-        {errors.title && <span className="field-error">{errors.title}</span>}
-      </label>
+      <Field label="Descricao" error={errors.title}>
+        <Input name="title" type="text" value={product.title} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Categoria
-        <select name="category" value={product.category} onChange={handleChange}>
+      <Field label="Categoria" error={errors.category}>
+        <Select name="category" value={product.category} onChange={handleChange}>
           <option value="" disabled>Selecione...</option>
           {CATEGORIES.map((category) => (
             <option key={category.value} value={category.value}>{category.label}</option>
           ))}
-        </select>
-        {errors.category && <span className="field-error">{errors.category}</span>}
-      </label>
+        </Select>
+      </Field>
 
-      <label>
-        Quantidade
-        <input name="quantity" type="number" min="0" step="1" value={product.quantity} onChange={handleChange} />
-        {errors.quantity && <span className="field-error">{errors.quantity}</span>}
-      </label>
+      <Field label="Quantidade" error={errors.quantity}>
+        <Input name="quantity" type="number" min="0" step="1" value={product.quantity} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Preco
-        <input name="price" type="number" min="0" step="0.01" value={product.price} onChange={handleChange} />
-        {errors.price && <span className="field-error">{errors.price}</span>}
-      </label>
+      <Field label="Preco" error={errors.price}>
+        <Input name="price" type="number" min="0" step="0.01" value={product.price} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Imagem
-        <input name="img" type="url" value={product.img} onChange={handleChange} />
-        {errors.img && <span className="field-error">{errors.img}</span>}
-      </label>
+      <Field label="Imagem" error={errors.img}>
+        <Input name="img" type="url" value={product.img} onChange={handleChange} />
+      </Field>
 
-      <button className="button" type="submit" disabled={submitting}>
+      <Button type="submit" disabled={submitting}>
         {submitting ? 'Salvando...' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

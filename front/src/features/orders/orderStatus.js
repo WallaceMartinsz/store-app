@@ -1,8 +1,8 @@
 export const ORDER_STATUS = {
-  PENDENTE: { label: 'Pendente', className: 'status-badge--pending' },
-  PAGO: { label: 'Pago', className: 'status-badge--paid' },
-  ENVIADO: { label: 'Enviado', className: 'status-badge--shipped' },
-  CANCELADO: { label: 'Cancelado', className: 'status-badge--canceled' }
+  PENDENTE: { label: 'Pendente', className: 'bg-yellow-500/15 text-warning' },
+  PAGO: { label: 'Pago', className: 'bg-primary/[0.18] text-primary-lighter' },
+  ENVIADO: { label: 'Enviado', className: 'bg-green-500/15 text-success' },
+  CANCELADO: { label: 'Cancelado', className: 'bg-slate-400/15 text-muted' }
 };
 
 // Mesmas transicoes aceitas pelo backend (OrderService.ALLOWED_TRANSITIONS)

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import productsApi from '../../api/productsApi';
+import { Feedback } from '../../components/ui/feedback';
+import { PageHeading } from '../../components/ui/page-heading';
 import ProductForm from '../../features/products/components/ProductForm';
 
 const AdminProductEditPage = () => {
@@ -38,14 +40,11 @@ const AdminProductEditPage = () => {
   };
 
   return (
-    <section className="content-section content-section--narrow">
-      <div className="page-heading">
-        <h1>Editar produto</h1>
-        <p>Atualize as informacoes exibidas na loja.</p>
-      </div>
+    <section className="mx-auto max-w-[640px]">
+      <PageHeading title="Editar produto" description="Atualize as informacoes exibidas na loja." />
 
-      {loading && <p>Carregando produto...</p>}
-      {error && <p className="feedback feedback--error">{error}</p>}
+      {loading && <Feedback>Carregando produto...</Feedback>}
+      {error && <Feedback variant="error">{error}</Feedback>}
       {!loading && product && (
         <ProductForm key={product.id} initialValues={product} submitLabel="Salvar produto" onSubmit={handleUpdate} />
       )}

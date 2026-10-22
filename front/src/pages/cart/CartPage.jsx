@@ -3,6 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getApiErrorMessage, isUnauthorized } from '../../api/ordersApi';
 import { useAuth } from '../../auth/AuthContext';
 import { useCart } from '../../cart/CartContext';
+import Button from '../../components/ui/button';
+import { DataTable, Td, Th } from '../../components/ui/data-table';
+import { EmptyState, Feedback, Spinner } from '../../components/ui/feedback';
+import { Input } from '../../components/ui/input';
+import { PageHeading } from '../../components/ui/page-heading';
 import { formatCurrency } from '../../utils/formatters';
 
 const CartPage = () => {
@@ -40,70 +45,68 @@ const CartPage = () => {
   };
 
   return (
-    <section className="content-section">
-      <div className="page-heading page-heading--row">
-        <div>
-          <h1>Carrinho</h1>
-          <p>{session?.visitor ? `Comprando como ${session.visitor.name}.` : 'Entre como visitante para finalizar a compra.'}</p>
-        </div>
-      </div>
+    <section className="mx-auto max-w-content">
+      <PageHeading
+        title="Carrinho"
+        description={session?.visitor ? `Comprando como ${session.visitor.name}.` : 'Entre como visitante para finalizar a compra.'}
+      />
 
-      {error && <p className="feedback feedback--error">{error}</p>}
+      {error && <Feedback variant="error">{error}</Feedback>}
 
       {items.length === 0 ? (
-        <div className="empty-state">
-          <p>Seu carrinho está vazio.</p>
-          <Link className="button" to="/">Continuar comprando</Link>
-        </div>
+        <EmptyState action={<Button as={Link} to="/">Continuar comprando</Button>}>
+          Seu carrinho está vazio.
+        </EmptyState>
       ) : (
         <>
-          <div className="data-table-wrapper">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Produto</th>
-                  <th>Preco</th>
-                  <th>Quantidade</th>
-                  <th>Subtotal</th>
-                  <th>Acoes</th>
+          <DataTable>
+            <thead>
+              <tr>
+                <Th>Produto</Th>
+                <Th>Preco</Th>
+                <Th>Quantidade</Th>
+                <Th>Subtotal</Th>
+                <Th>Acoes</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => (
+                <tr key={item.product.id}>
+                  <Td>{item.product.name}</Td>
+                  <Td>{formatCurrency(item.product.price)}</Td>
+                  <Td>
+                    <Input
+                      size="sm"
+                      min="1"
+                      max={item.product.quantity}
+                      type="number"
+                      value={item.quantity}
+                      onChange={(event) => updateQuantity(item.product.id, Number(event.target.value))}
+                    />
+                  </Td>
+                  <Td>{formatCurrency(Number(item.product.price || 0) * item.quantity)}</Td>
+                  <Td>
+                    <Button variant="link" size="none" type="button" onClick={() => removeItem(item.product.id)}>
+                      Remover
+                    </Button>
+                  </Td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.product.id}>
-                    <td>{item.product.name}</td>
-                    <td>{formatCurrency(item.product.price)}</td>
-                    <td>
-                      <input
-                        className="quantity-input"
-                        min="1"
-                        max={item.product.quantity}
-                        type="number"
-                        value={item.quantity}
-                        onChange={(event) => updateQuantity(item.product.id, Number(event.target.value))}
-                      />
-                    </td>
-                    <td>{formatCurrency(Number(item.product.price || 0) * item.quantity)}</td>
-                    <td>
-                      <button className="link-button" type="button" onClick={() => removeItem(item.product.id)}>
-                        Remover
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="cart-summary">
-            <dl className="cart-summary__lines">
-              <div><dt>Subtotal</dt><dd>{formatCurrency(subtotal)}</dd></div>
-              <div><dt>Frete</dt><dd>{formatCurrency(shipping)}</dd></div>
-              <div className="cart-summary__total"><dt>Total</dt><dd>{formatCurrency(total)}</dd></div>
+              ))}
+            </tbody>
+          </DataTable>
+          <div className="mt-[18px] flex flex-col items-end gap-4 text-foreground">
+            <dl className="grid w-[min(100%,300px)] gap-1.5">
+              <div className="flex justify-between text-muted"><dt>Subtotal</dt><dd>{formatCurrency(subtotal)}</dd></div>
+              <div className="flex justify-between text-muted"><dt>Frete</dt><dd>{formatCurrency(shipping)}</dd></div>
+              <div className="flex justify-between border-t border-line pt-2 text-lg font-bold text-foreground">
+                <dt>Total</dt>
+                <dd>{formatCurrency(total)}</dd>
+              </div>
             </dl>
-            <button className="button" type="button" onClick={handleCheckout} disabled={submitting}>
-              {submitting && <span className="spinner" aria-hidden="true" />}
+            <Button type="button" onClick={handleCheckout} disabled={submitting}>
+              {submitting && <Spinner />}
               {submitting ? 'Finalizando...' : 'Finalizar compra'}
-            </button>
+            </Button>
           </div>
         </>
       )}

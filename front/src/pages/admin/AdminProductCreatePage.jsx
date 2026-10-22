@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import productsApi from '../../api/productsApi';
+import { Feedback } from '../../components/ui/feedback';
+import { PageHeading } from '../../components/ui/page-heading';
 import ProductForm from '../../features/products/components/ProductForm';
 
 const AdminProductCreatePage = () => {
@@ -18,13 +20,10 @@ const AdminProductCreatePage = () => {
   };
 
   return (
-    <section className="content-section content-section--narrow">
-      <div className="page-heading">
-        <h1>Novo produto</h1>
-        <p>Cadastro usado pelo admin para alimentar a vitrine.</p>
-      </div>
+    <section className="mx-auto max-w-[640px]">
+      <PageHeading title="Novo produto" description="Cadastro usado pelo admin para alimentar a vitrine." />
 
-      {error && <p className="feedback feedback--error">{error}</p>}
+      {error && <Feedback variant="error">{error}</Feedback>}
       <ProductForm submitLabel="Cadastrar produto" onSubmit={handleCreate} />
     </section>
   );
