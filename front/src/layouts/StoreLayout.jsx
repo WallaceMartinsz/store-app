@@ -1,10 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { LayoutDashboard, LogOut, Search, ShoppingCart, User } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { useCart } from '../cart/CartContext';
 import CartToast from '../cart/CartToast';
+import Brand from '../components/ui/brand';
+import { cn } from '../lib/utils';
 import { CATEGORIES } from '../features/products/categories';
+
+const actionClasses = 'relative inline-flex items-center gap-2 whitespace-nowrap text-sm text-soft no-underline transition-colors hover:text-white';
+const footerLinkClasses = 'text-[13px] text-muted no-underline transition-colors hover:text-foreground';
+
+const CategoryLink = ({ to, active, children }) => (
+  <Link
+    to={to}
+    className={cn(
+      'whitespace-nowrap rounded-md px-3 py-1.5 text-[13px] font-medium no-underline transition-colors hover:bg-surface hover:text-foreground',
+      active ? 'bg-surface text-foreground' : 'text-muted'
+    )}
+  >
+    {children}
+  </Link>
+);
 
 const StoreLayout = () => {
   const { isAdmin, session, logout } = useAuth();
@@ -27,16 +44,19 @@ const StoreLayout = () => {
   };
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="topbar__main">
-          <Link className="brand" to="/">
-            Load<span>out</span>
-          </Link>
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-[100] border-b border-line bg-background/90 backdrop-blur-md">
+        <div className="mx-auto box-content flex h-16 max-w-content items-center gap-6 px-8 max-[760px]:h-auto max-[760px]:flex-wrap max-[760px]:gap-3 max-[760px]:px-4 max-[760px]:py-3">
+          <Brand />
 
-          <form className="search-bar" role="search" onSubmit={handleSearch}>
+          <form
+            className="mx-auto flex h-10 max-w-[520px] flex-1 items-center gap-2.5 rounded-full border border-line bg-surface px-3.5 text-subtle transition-colors focus-within:border-primary max-[760px]:order-3 max-[760px]:max-w-none max-[760px]:basis-full"
+            role="search"
+            onSubmit={handleSearch}
+          >
             <Search size={18} aria-hidden="true" />
             <input
+              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-foreground outline-none"
               type="search"
               placeholder="Buscar mouse, teclado, headset..."
               aria-label="Buscar produtos"
@@ -45,73 +65,88 @@ const StoreLayout = () => {
             />
           </form>
 
-          <nav className="topbar__actions" aria-label="Conta">
+          <nav className="flex items-center gap-[18px] max-[760px]:ml-auto" aria-label="Conta">
             {isAdmin && (
-              <Link className="topbar__action" to="/admin">
+              <Link className={actionClasses} to="/admin">
                 <LayoutDashboard size={20} />
-                <span>Painel</span>
+                <span className="max-[760px]:hidden">Painel</span>
               </Link>
             )}
-            <Link className="topbar__action" to={session ? '/profile' : '/login'}>
+            <Link className={actionClasses} to={session ? '/profile' : '/login'}>
               <User size={20} />
-              <span>{session ? `Olá, ${firstName}` : 'Entrar'}</span>
+              <span className="max-[760px]:hidden">{session ? `Olá, ${firstName}` : 'Entrar'}</span>
             </Link>
-            <Link className="topbar__action topbar__cart" to="/cart" aria-label={`Carrinho com ${itemCount} itens`}>
+            <Link className={actionClasses} to="/cart" aria-label={`Carrinho com ${itemCount} itens`}>
               {/* key muda com a quantidade e reinicia a animacao de "pulo" do icone e do contador */}
-              <ShoppingCart key={`icon-${itemCount}`} className={itemCount > 0 ? 'cart-bump' : ''} size={20} />
-              {itemCount > 0 && <span key={`badge-${itemCount}`} className="topbar__badge">{itemCount}</span>}
+              <ShoppingCart key={`icon-${itemCount}`} className={cn(itemCount > 0 && 'animate-cart-bump')} size={20} />
+              {itemCount > 0 && (
+                <span
+                  key={`badge-${itemCount}`}
+                  className="absolute -right-2.5 -top-2 h-[18px] min-w-[18px] animate-badge-pop rounded-full bg-primary px-[5px] text-center text-[11px] font-bold leading-[18px] text-white"
+                >
+                  {itemCount}
+                </span>
+              )}
             </Link>
             {session && (
-              <button className="topbar__action link-button" type="button" onClick={logout} aria-label="Sair">
+              <button
+                className="inline-flex cursor-pointer items-center text-muted transition-colors hover:text-foreground"
+                type="button"
+                onClick={logout}
+                aria-label="Sair"
+              >
                 <LogOut size={20} />
               </button>
             )}
           </nav>
         </div>
 
-        <nav className="category-nav" aria-label="Categorias">
-          <NavLink className={!activeCategory && location.pathname === '/' ? 'is-active' : ''} to="/" end>
+        <nav
+          className="mx-auto box-content flex max-w-content gap-1 overflow-x-auto px-8 pb-2.5 scrollbar-none max-[760px]:px-4"
+          aria-label="Categorias"
+        >
+          <CategoryLink to="/" active={!activeCategory && location.pathname === '/'}>
             Todos
-          </NavLink>
+          </CategoryLink>
           {CATEGORIES.map((category) => (
-            <Link
-              key={category.value}
-              className={activeCategory === category.slug ? 'is-active' : ''}
-              to={`/?categoria=${category.slug}`}
-            >
+            <CategoryLink key={category.value} to={`/?categoria=${category.slug}`} active={activeCategory === category.slug}>
               {category.label}
-            </Link>
+            </CategoryLink>
           ))}
         </nav>
       </header>
 
-      <main className="page">
+      <main className="p-8 max-[760px]:p-4">
         <Outlet />
       </main>
 
       <CartToast />
 
-      <footer className="footer">
-        <div className="footer__inner">
-          <div>
-            <Link className="brand" to="/">
-              Load<span>out</span>
-            </Link>
-            <p>Periféricos e acessórios para montar o seu setup.</p>
+      <footer className="mt-[72px] border-t border-line bg-footer">
+        <div className="mx-auto box-content grid max-w-content grid-cols-[2fr_1fr_1fr] gap-8 px-8 py-10 max-[760px]:grid-cols-1 max-[760px]:px-4 max-[760px]:py-8">
+          <div className="flex flex-col gap-2">
+            <Brand />
+            <p className="text-[13px] text-muted">Periféricos e acessórios para montar o seu setup.</p>
           </div>
-          <div>
-            <h4>Categorias</h4>
+          <div className="flex flex-col gap-2">
+            <h4 className="mb-1 text-sm font-bold text-foreground">Categorias</h4>
             {CATEGORIES.slice(0, 4).map((category) => (
-              <Link key={category.value} to={`/?categoria=${category.slug}`}>{category.label}</Link>
+              <Link key={category.value} className={footerLinkClasses} to={`/?categoria=${category.slug}`}>
+                {category.label}
+              </Link>
             ))}
           </div>
-          <div>
-            <h4>Minha conta</h4>
-            <Link to={session ? '/profile' : '/login'}>{session ? 'Meus pedidos' : 'Entrar / Cadastrar'}</Link>
-            <Link to="/cart">Carrinho</Link>
+          <div className="flex flex-col gap-2">
+            <h4 className="mb-1 text-sm font-bold text-foreground">Minha conta</h4>
+            <Link className={footerLinkClasses} to={session ? '/profile' : '/login'}>
+              {session ? 'Meus pedidos' : 'Entrar / Cadastrar'}
+            </Link>
+            <Link className={footerLinkClasses} to="/cart">Carrinho</Link>
           </div>
         </div>
-        <p className="footer__copy">Projeto de portfólio · Spring Boot + React</p>
+        <p className="border-t border-line-soft px-8 py-4 text-center text-[13px] text-muted">
+          Projeto de portfólio · Spring Boot + React
+        </p>
       </footer>
     </div>
   );

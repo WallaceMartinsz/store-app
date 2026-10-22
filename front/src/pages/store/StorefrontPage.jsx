@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, CreditCard, PackageX, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../../cart/CartContext';
+import Button from '../../components/ui/button';
+import { EmptyState, Feedback } from '../../components/ui/feedback';
+import { Select } from '../../components/ui/input';
+import { SectionHeader } from '../../components/ui/page-heading';
+import { cn } from '../../lib/utils';
 import ProductCard from '../../features/products/components/ProductCard';
 import { CATEGORIES, findCategoryBySlug } from '../../features/products/categories';
 import useProducts from '../../features/products/hooks/useProducts';
@@ -15,6 +20,28 @@ const BENEFITS = [
   { icon: ShieldCheck, title: 'Compra segura', text: 'Seus dados protegidos' },
   { icon: RotateCcw, title: 'Troca em 7 dias', text: 'Sem complicação' }
 ];
+
+// Bordas internas da faixa de vantagens nos tres layouts (4, 2 e 1 colunas)
+const benefitBorder = (index) => cn(
+  index > 0 && 'border-l border-line max-[760px]:border-l-0 max-[760px]:border-t',
+  index === 2 && 'max-[1000px]:border-l-0',
+  index >= 2 && 'max-[1000px]:border-t'
+);
+
+const bannerOverlay = 'max-[760px]:bg-none max-[760px]:bg-[rgba(15,17,23,0.8)] max-[760px]:px-6 max-[760px]:py-10';
+
+const Chip = ({ active, onClick, children }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={cn(
+      'cursor-pointer rounded-full border px-3.5 py-1.5 text-[13px] transition-all duration-200 hover:border-primary active:scale-95',
+      active ? 'border-primary bg-primary text-white' : 'border-line bg-transparent text-muted hover:text-foreground'
+    )}
+  >
+    {children}
+  </button>
+);
 
 const SORTERS = {
   relevance: () => 0,
@@ -67,45 +94,66 @@ const StorefrontPage = () => {
   const sectionTitle = query ? `Resultados para "${query}"` : category?.label || 'Todos os produtos';
 
   return (
-    <div className="storefront">
+    <div>
       {!isFiltering && (
         <>
-          <section className="hero-banner" style={{ backgroundImage: `url(${HERO_IMG})` }}>
-            <div className="hero-banner__content">
-              <p className="hero-banner__eyebrow">Novidades da semana</p>
-              <h1 className="hero-banner__heading">
-                Monte seu <span>setup</span>.<br />Sem complicação.
+          <section
+            className="mx-auto mb-6 max-w-content overflow-hidden rounded-2xl bg-surface bg-cover bg-center"
+            style={{ backgroundImage: `url(${HERO_IMG})` }}
+          >
+            <div
+              className={cn(
+                'flex flex-col items-start bg-[linear-gradient(90deg,rgba(15,17,23,0.95)_0%,rgba(15,17,23,0.75)_45%,rgba(15,17,23,0.1)_100%)] px-14 py-20',
+                bannerOverlay
+              )}
+            >
+              <p className="mb-4 animate-fade-up text-xs font-semibold uppercase tracking-[0.1em] text-primary-lighter">
+                Novidades da semana
+              </p>
+              <h1 className="mb-4 animate-fade-up text-[52px] font-bold leading-[1.08] tracking-[-1.5px] text-foreground [animation-delay:80ms] max-[760px]:text-[34px] max-[760px]:tracking-[-0.5px]">
+                Monte seu <span className="text-primary-light">setup</span>.<br />Sem complicação.
               </h1>
-              <p className="hero-banner__sub">
+              <p className="mb-7 max-w-[440px] animate-fade-up text-base leading-[1.6] text-soft [animation-delay:160ms]">
                 Periféricos e acessórios selecionados para jogar, trabalhar e criar com mais conforto.
               </p>
-              <a className="button button--lg" href="#produtos">
-                Ver produtos <ArrowRight size={18} />
-              </a>
+              <Button as="a" size="lg" className="group animate-fade-up [animation-delay:240ms]" href="#produtos">
+                Ver produtos <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              </Button>
             </div>
           </section>
 
-          <section className="benefits" aria-label="Vantagens">
-            {BENEFITS.map(({ icon: Icon, title, text }) => (
-              <div className="benefit" key={title}>
+          <section
+            className="mx-auto mb-14 grid max-w-content grid-cols-4 rounded-xl border border-line bg-surface max-[1000px]:grid-cols-2 max-[760px]:grid-cols-1"
+            aria-label="Vantagens"
+          >
+            {BENEFITS.map(({ icon: Icon, title, text }, index) => (
+              <div className={cn('flex items-center gap-3.5 px-5 py-[18px] text-primary-light', benefitBorder(index))} key={title}>
                 <Icon size={26} aria-hidden="true" />
                 <div>
-                  <strong>{title}</strong>
-                  <span>{text}</span>
+                  <strong className="block text-sm font-semibold text-foreground">{title}</strong>
+                  <span className="text-xs text-muted">{text}</span>
                 </div>
               </div>
             ))}
           </section>
 
-          <section className="content-section">
-            <div className="section-header">
-              <h2 className="section-header__title">Compre por categoria</h2>
-            </div>
-            <div className="category-grid">
+          <section className="mx-auto max-w-content">
+            <SectionHeader className="mb-6" title="Compre por categoria" />
+            <div className="mb-14 grid grid-cols-6 gap-4 max-[1000px]:grid-cols-3 max-[760px]:grid-cols-2">
               {CATEGORIES.map(({ value, slug, label, icon: Icon, img }) => (
-                <Link className="category-tile" key={value} to={`/?categoria=${slug}`}>
-                  <img src={img} alt="" loading="lazy" />
-                  <span className="category-tile__label">
+                <Link
+                  className="group relative aspect-square overflow-hidden rounded-xl border border-line no-underline transition-colors hover:border-primary"
+                  key={value}
+                  to={`/?categoria=${slug}`}
+                >
+                  <img
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+                    src={img}
+                    alt=""
+                    loading="lazy"
+                  />
+                  <span className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(15,17,23,0.9)_100%)]" />
+                  <span className="absolute inset-x-3 bottom-3 z-[1] flex items-center gap-2 text-sm font-semibold text-foreground">
                     <Icon size={18} aria-hidden="true" /> {label}
                   </span>
                 </Link>
@@ -115,24 +163,22 @@ const StorefrontPage = () => {
         </>
       )}
 
-      <section className="content-section" id="produtos" ref={productsRef}>
-        <div className="catalog-toolbar">
-          <div className="section-header">
-            <h2 className="section-header__title">{sectionTitle}</h2>
-            {!loading && <span className="section-header__count">{visibleProducts.length} produtos</span>}
-          </div>
+      <section className="mx-auto max-w-content scroll-mt-[130px]" id="produtos" ref={productsRef}>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+          <SectionHeader title={sectionTitle} count={!loading && `${visibleProducts.length} produtos`} />
 
-          <div className="catalog-filters">
-            <label className="checkbox">
+          <div className="flex items-center gap-4 max-[760px]:flex-wrap">
+            <label className="inline-flex cursor-pointer items-center gap-2 text-sm text-soft">
               <input
+                className="accent-primary"
                 type="checkbox"
                 checked={onlyInStock}
                 onChange={(event) => updateParam('estoque', event.target.checked ? '1' : '')}
               />
               Somente em estoque
             </label>
-            <select
-              className="select"
+            <Select
+              size="toolbar"
               aria-label="Ordenar produtos"
               value={sort}
               onChange={(event) => updateParam('ordem', event.target.value === 'relevance' ? '' : event.target.value)}
@@ -141,54 +187,55 @@ const StorefrontPage = () => {
               <option value="price-asc">Menor preço</option>
               <option value="price-desc">Maior preço</option>
               <option value="name">Nome (A-Z)</option>
-            </select>
+            </Select>
           </div>
         </div>
 
-        <div className="chip-list" role="group" aria-label="Filtrar por categoria">
-          <button
-            type="button"
-            className={`chip ${!category ? 'is-active' : ''}`}
-            onClick={() => updateParam('categoria', '')}
-          >
+        <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoria">
+          <Chip active={!category} onClick={() => updateParam('categoria', '')}>
             Todos
-          </button>
+          </Chip>
           {CATEGORIES.map((item) => (
-            <button
-              type="button"
-              key={item.value}
-              className={`chip ${category?.value === item.value ? 'is-active' : ''}`}
-              onClick={() => updateParam('categoria', item.slug)}
-            >
+            <Chip key={item.value} active={category?.value === item.value} onClick={() => updateParam('categoria', item.slug)}>
               {item.label}
-            </button>
+            </Chip>
           ))}
         </div>
 
-        {loading && <p className="feedback">Carregando produtos...</p>}
-        {error && <p className="feedback feedback--error">{error}</p>}
+        {loading && <Feedback>Carregando produtos...</Feedback>}
+        {error && <Feedback variant="error">{error}</Feedback>}
 
         {!loading && !error && visibleProducts.length === 0 && (
-          <div className="empty-state">
-            <PackageX size={40} aria-hidden="true" />
-            <p>Nenhum produto encontrado com esses filtros.</p>
-            <Link className="button button--secondary" to="/">Limpar filtros</Link>
-          </div>
+          <EmptyState
+            icon={PackageX}
+            action={<Button as={Link} variant="secondary" to="/">Limpar filtros</Button>}
+          >
+            Nenhum produto encontrado com esses filtros.
+          </EmptyState>
         )}
 
-        <div className="product-grid">
-          {visibleProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={addItem} />
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-5">
+          {visibleProducts.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} onAddToCart={addItem} />
           ))}
         </div>
       </section>
 
       {!isFiltering && (
-        <section className="promo-banner" style={{ backgroundImage: `url(${PROMO_IMG})` }}>
-          <div className="promo-banner__content">
-            <h2>Seu canto gamer merece upgrade</h2>
-            <p>Headsets, microfones e webcams para jogar e fazer stream com qualidade.</p>
-            <Link className="button" to="/?categoria=streaming">Conferir streaming</Link>
+        <section
+          className="mx-auto mt-16 max-w-content overflow-hidden rounded-2xl bg-surface bg-cover bg-center"
+          style={{ backgroundImage: `url(${PROMO_IMG})` }}
+        >
+          <div
+            className={cn(
+              'flex flex-col items-end bg-[linear-gradient(270deg,rgba(15,17,23,0.95)_0%,rgba(15,17,23,0.7)_50%,rgba(15,17,23,0.1)_100%)] p-14 text-right',
+              bannerOverlay,
+              'max-[760px]:items-start max-[760px]:text-left'
+            )}
+          >
+            <h2 className="mb-2.5 text-[30px] font-bold text-foreground">Seu canto gamer merece upgrade</h2>
+            <p className="mb-[22px] max-w-[380px] text-soft">Headsets, microfones e webcams para jogar e fazer stream com qualidade.</p>
+            <Button as={Link} to="/?categoria=streaming">Conferir streaming</Button>
           </div>
         </section>
       )}

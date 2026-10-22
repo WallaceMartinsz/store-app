@@ -1,6 +1,22 @@
 import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import Brand from '../../components/ui/brand';
+import Button from '../../components/ui/button';
+import { Feedback } from '../../components/ui/feedback';
+import { Field, Input } from '../../components/ui/input';
+import { PageHeading } from '../../components/ui/page-heading';
+import SegmentedControl from '../../components/ui/segmented-control';
+
+const MODE_OPTIONS = [
+  { value: 'visitor', label: 'Visitante' },
+  { value: 'admin', label: 'Admin' }
+];
+
+const VISITOR_ACTION_OPTIONS = [
+  { value: 'register', label: 'Cadastrar' },
+  { value: 'login', label: 'Ja tenho cadastro' }
+];
 
 // Mesmas regras do VisitorRequest/VisitorLoginRequest no backend
 const MIN_PASSWORD_LENGTH = 8;
@@ -108,99 +124,72 @@ const LoginPage = () => {
     }
   };
 
-  const fieldError = (name) => fieldErrors[name] && <span className="field-error">{fieldErrors[name]}</span>;
-
   return (
-    <main className="login-page">
-      <section className="login-panel">
-        <Link className="brand" to="/">Load<span>out</span></Link>
-        <div className="page-heading">
-          <h1>Entrar na loja</h1>
-          <p>Escolha visitante para comprar ou admin para gerenciar estoque e vendas.</p>
-        </div>
+    <main className="grid min-h-screen place-items-center bg-background p-6">
+      <section className="w-[min(100%,460px)] animate-fade-up rounded-xl border border-line bg-surface p-8">
+        <Brand size="lg" className="mb-6 block" />
+        <PageHeading
+          title="Entrar na loja"
+          description="Escolha visitante para comprar ou admin para gerenciar estoque e vendas."
+        />
 
-        <div className="segmented-control">
-          <button className={mode === 'visitor' ? 'is-active' : ''} type="button" onClick={() => setMode('visitor')}>
-            Visitante
-          </button>
-          <button className={mode === 'admin' ? 'is-active' : ''} type="button" onClick={() => setMode('admin')}>
-            Admin
-          </button>
-        </div>
+        <SegmentedControl className="mb-5" options={MODE_OPTIONS} value={mode} onChange={setMode} />
 
-        {error && <p className="feedback feedback--error">{error}</p>}
+        {error && <Feedback variant="error">{error}</Feedback>}
 
         {mode === 'visitor' ? (
-          <form className="auth-form" onSubmit={handleVisitorSubmit} noValidate>
-            <div className="segmented-control segmented-control--small">
-              <button
-                className={isRegister ? 'is-active' : ''}
-                type="button"
-                onClick={() => changeVisitorAction('register')}
-              >
-                Cadastrar
-              </button>
-              <button
-                className={!isRegister ? 'is-active' : ''}
-                type="button"
-                onClick={() => changeVisitorAction('login')}
-              >
-                Ja tenho cadastro
-              </button>
-            </div>
+          <form key="visitor" className="grid animate-swap-in gap-3.5" onSubmit={handleVisitorSubmit} noValidate>
+            <SegmentedControl
+              className="mb-2"
+              options={VISITOR_ACTION_OPTIONS}
+              value={visitorAction}
+              onChange={changeVisitorAction}
+            />
 
             {isRegister && (
-              <label>
-                Nome
-                <input name="name" autoComplete="name" value={visitorForm.name} onChange={handleVisitorChange} />
-                {fieldError('name')}
-              </label>
+              <Field label="Nome" error={fieldErrors.name}>
+                <Input name="name" autoComplete="name" value={visitorForm.name} onChange={handleVisitorChange} />
+              </Field>
             )}
 
-            <label>
-              E-mail
-              <input
+            <Field label="E-mail" error={fieldErrors.email}>
+              <Input
                 name="email"
                 type="email"
                 autoComplete="email"
                 value={visitorForm.email}
                 onChange={handleVisitorChange}
               />
-              {fieldError('email')}
-            </label>
+            </Field>
 
-            <label>
-              Senha
-              <input
+            <Field
+              label="Senha"
+              error={fieldErrors.password}
+              hint={isRegister && `Minimo de ${MIN_PASSWORD_LENGTH} caracteres.`}
+            >
+              <Input
                 name="password"
                 type="password"
                 autoComplete={isRegister ? 'new-password' : 'current-password'}
                 value={visitorForm.password}
                 onChange={handleVisitorChange}
               />
-              {isRegister && !fieldErrors.password && (
-                <span className="field-hint">Minimo de {MIN_PASSWORD_LENGTH} caracteres.</span>
-              )}
-              {fieldError('password')}
-            </label>
+            </Field>
 
             {isRegister && (
               <>
-                <label>
-                  Confirmar senha
-                  <input
+                <Field label="Confirmar senha" error={fieldErrors.confirmPassword}>
+                  <Input
                     name="confirmPassword"
                     type="password"
                     autoComplete="new-password"
                     value={visitorForm.confirmPassword}
                     onChange={handleVisitorChange}
                   />
-                  {fieldError('confirmPassword')}
-                </label>
+                </Field>
 
-                <label>
-                  Telefone
-                  <input
+                <Field label="Telefone" error={fieldErrors.phone}>
+                  <Input
                     name="phone"
                     type="tel"
                     autoComplete="tel"
@@ -209,28 +198,25 @@ const LoginPage = () => {
                     value={visitorForm.phone}
                     onChange={handleVisitorChange}
                   />
-                  {fieldError('phone')}
-                </label>
+                </Field>
               </>
             )}
 
-            <button className="button" type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading}>
               {loading ? 'Entrando...' : isRegister ? 'Criar conta' : 'Entrar'}
-            </button>
+            </Button>
           </form>
         ) : (
-          <form className="auth-form" onSubmit={handleAdminSubmit}>
-            <label>
-              Usuario
-              <input name="username" value={adminForm.username} onChange={handleAdminChange} />
-            </label>
-            <label>
-              Senha
-              <input name="password" type="password" value={adminForm.password} onChange={handleAdminChange} />
-            </label>
-            <button className="button" type="submit" disabled={loading}>
+          <form key="admin" className="grid animate-swap-in gap-3.5" onSubmit={handleAdminSubmit}>
+            <Field label="Usuario">
+              <Input name="username" value={adminForm.username} onChange={handleAdminChange} />
+            </Field>
+            <Field label="Senha">
+              <Input name="password" type="password" value={adminForm.password} onChange={handleAdminChange} />
+            </Field>
+            <Button type="submit" disabled={loading}>
               {loading ? 'Validando...' : 'Entrar como admin'}
-            </button>
+            </Button>
           </form>
         )}
       </section>
