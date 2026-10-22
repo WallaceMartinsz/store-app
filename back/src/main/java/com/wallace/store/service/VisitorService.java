@@ -11,8 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 public class VisitorService {
     private final VisitorRepository repository;
@@ -36,35 +34,24 @@ public class VisitorService {
         visitor.setEmail(email);
         visitor.setPassword(passwordEncoder.encode(request.password()));
         visitor.setPhone(normalizeOptional(request.phone()));
-        visitor.setAccessToken(newToken());
 
         return toResponse(repository.save(visitor));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public VisitorResponse login(VisitorLoginRequest request) {
         String email = normalizeEmail(request.email());
-        // Mesma resposta para e-mail inexistente e senha errada, para nao revelar quem tem cadastro
         Visitor visitor = repository.findByEmailIgnoreCase(email)
                 .filter((found) -> passwordMatches(request.password(), found.getPassword()))
                 .orElseThrow(InvalidCredentialsException::new);
-
-        if (visitor.getAccessToken() == null) {
-            visitor.setAccessToken(newToken());
-        }
 
         return toResponse(visitor);
     }
 
     private boolean passwordMatches(String rawPassword, String encodedPassword) {
-        // Visitantes criados antes da senha existir ficam sem hash e nao conseguem entrar
         return encodedPassword != null
                 && !encodedPassword.isBlank()
                 && passwordEncoder.matches(rawPassword, encodedPassword);
-    }
-
-    private String newToken() {
-        return UUID.randomUUID().toString();
     }
 
     private String normalizeEmail(String email) {
@@ -84,8 +71,7 @@ public class VisitorService {
                 visitor.getName(),
                 visitor.getEmail(),
                 visitor.getPhone(),
-                visitor.getCreatedAt(),
-                visitor.getAccessToken()
+                visitor.getCreatedAt()
         );
     }
 }

@@ -9,6 +9,4 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
     Optional<Visitor> findByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCase(String email);
-
-    Optional<Visitor> findByAccessToken(String accessToken);
 }

@@ -3,7 +3,7 @@ package com.wallace.store.controller;
 import com.wallace.store.dto.OrderRequest;
 import com.wallace.store.dto.OrderResponse;
 import com.wallace.store.dto.OrderStatusRequest;
-import com.wallace.store.security.VisitorTokenFilter;
+import com.wallace.store.security.Roles;
 import com.wallace.store.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -60,10 +60,11 @@ public class OrderController {
 
     private boolean isVisitor(Authentication authentication) {
         return authentication.getAuthorities().stream()
-                .anyMatch((authority) -> authority.getAuthority().equals("ROLE_" + VisitorTokenFilter.ROLE));
+                .anyMatch((authority) -> authority.getAuthority().equals("ROLE_" + Roles.VISITOR));
     }
 
     private Long visitorId(Authentication authentication) {
-        return (Long) authentication.getPrincipal();
+        // O "sub" do JWT do visitante e o id dele
+        return Long.valueOf(authentication.getName());
     }
 }

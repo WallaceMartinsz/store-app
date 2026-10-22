@@ -27,7 +27,7 @@ const CartPage = () => {
       navigate('/profile', { state: { createdOrderId: order.id } });
     } catch (requestError) {
       if (isUnauthorized(requestError)) {
-        // Sessao salva antes do token existir: precisa entrar de novo
+        // Token expirado ou invalido: precisa entrar de novo
         logout();
         goToLogin();
         return;

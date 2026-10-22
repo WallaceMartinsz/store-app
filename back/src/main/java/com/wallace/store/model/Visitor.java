@@ -32,11 +32,6 @@ public class Visitor {
     @Column(length = 11)
     private String phone;
 
-    // Token opaco usado pelo front no header X-Visitor-Token para identificar o visitante
-    @ToString.Exclude
-    @Column(unique = true, length = 36)
-    private String accessToken;
-
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

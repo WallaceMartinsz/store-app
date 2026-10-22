@@ -11,10 +11,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Emite os JWT da loja. O "sub" e o id do visitante ou o usuario do admin,
- * e o papel vai no claim "role" (lido pelo SecurityConfig).
- */
 @Service
 public class TokenService {
     public static final String ISSUER = "store-app";

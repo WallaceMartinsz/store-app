@@ -1,24 +1,40 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import authApi from '../api/authApi';
+import {
+  SESSION_EXPIRED_EVENT,
+  clearSession,
+  expireSession,
+  readValidSession,
+  saveSession as persistSession
+} from './session';
 
-const SESSION_KEY = 'store-app-session';
+// setTimeout aceita no maximo ~24,8 dias
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
 const AuthContext = createContext(null);
 
-const readSavedSession = () => {
-  const savedSession = localStorage.getItem(SESSION_KEY);
-
-  if (!savedSession) {
-    return null;
-  }
-
-  return JSON.parse(savedSession);
-};
-
 export const AuthProvider = ({ children }) => {
-  const [session, setSession] = useState(readSavedSession);
+  const [session, setSession] = useState(readValidSession);
+
+  useEffect(() => {
+    const handleExpired = () => setSession(null);
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, handleExpired);
+  }, []);
+
+  // Desloga sozinho quando o JWT vence, mesmo sem nenhuma requisicao
+  useEffect(() => {
+    if (!session?.expiresAt) {
+      return undefined;
+    }
+
+    const remaining = Date.parse(session.expiresAt) - Date.now();
+    const timer = setTimeout(expireSession, Math.min(Math.max(remaining, 0), MAX_TIMEOUT_MS));
+    return () => clearTimeout(timer);
+  }, [session]);
 
   const saveSession = (nextSession) => {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(nextSession));
+    persistSession(nextSession);
     setSession(nextSession);
   };
 
@@ -26,9 +42,22 @@ export const AuthProvider = ({ children }) => {
     const response = await authApi.loginAdmin(username, password);
     const nextSession = {
       type: 'admin',
+      token: response.data.token,
+      expiresAt: response.data.expiresAt,
       username: response.data.username,
-      role: response.data.role,
-      token: btoa(`${username}:${password}`)
+      role: response.data.role
+    };
+
+    saveSession(nextSession);
+    return nextSession;
+  };
+
+  const saveVisitorSession = (data) => {
+    const nextSession = {
+      type: 'visitor',
+      token: data.token,
+      expiresAt: data.expiresAt,
+      visitor: data.visitor
     };
 
     saveSession(nextSession);
@@ -37,28 +66,16 @@ export const AuthProvider = ({ children }) => {
 
   const registerVisitor = async (visitor) => {
     const response = await authApi.registerVisitor(visitor);
-    const nextSession = {
-      type: 'visitor',
-      visitor: response.data
-    };
-
-    saveSession(nextSession);
-    return nextSession;
+    return saveVisitorSession(response.data);
   };
 
   const loginVisitor = async ({ email, password }) => {
     const response = await authApi.loginVisitor(email, password);
-    const nextSession = {
-      type: 'visitor',
-      visitor: response.data
-    };
-
-    saveSession(nextSession);
-    return nextSession;
+    return saveVisitorSession(response.data);
   };
 
   const logout = () => {
-    localStorage.removeItem(SESSION_KEY);
+    clearSession();
     localStorage.removeItem('store-app-cart');
     setSession(null);
   };

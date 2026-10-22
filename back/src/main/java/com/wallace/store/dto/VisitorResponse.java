@@ -7,7 +7,6 @@ public record VisitorResponse(
         String name,
         String email,
         String phone,
-        LocalDateTime createdAt,
-        String accessToken
+        LocalDateTime createdAt
 ) {
 }
