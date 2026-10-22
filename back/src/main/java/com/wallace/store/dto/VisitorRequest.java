@@ -14,7 +14,11 @@ public record VisitorRequest(
         @Size(max = 160, message = "O e-mail deve ter no maximo 160 caracteres.")
         String email,
 
-        @Size(max = 30, message = "O telefone deve ter no maximo 30 caracteres.")
+        @NotBlank(message = "A senha do visitante é obrigatoria.")
+        @Size(min = 8, max = 72, message = "A senha do visitante deve ter entre 8 e 72 caracteres.")
+        String password,
+
+        @Size(max = 11, message = "O telefone deve ter no maximo 11 caracteres.")
         String phone
 ) {
 }

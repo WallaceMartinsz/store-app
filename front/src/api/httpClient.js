@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { expireSession, isSessionExpired, readSession } from '../auth/session';
 
 export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -10,19 +11,32 @@ const httpClient = axios.create({
 });
 
 httpClient.interceptors.request.use((config) => {
-  const savedSession = localStorage.getItem('store-app-session');
+  const session = readSession();
 
-  if (!savedSession) {
+  if (!session) {
     return config;
   }
 
-  const session = JSON.parse(savedSession);
-
-  if (session?.type === 'admin' && session?.token) {
-    config.headers.Authorization = `Basic ${session.token}`;
+  // Token vencido nao e enviado: a API recusaria ate as rotas publicas
+  if (isSessionExpired(session)) {
+    expireSession();
+    return config;
   }
 
+  config.headers.Authorization = `Bearer ${session.token}`;
   return config;
 });
+
+httpClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // 401 com token enviado: token invalido ou revogado, a sessao local nao serve mais
+    if (error.response?.status === 401 && error.config?.headers?.Authorization) {
+      expireSession();
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default httpClient;

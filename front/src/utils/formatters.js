@@ -6,3 +6,7 @@ export const formatCurrency = (value) => {
     currency: 'BRL'
   }).format(numberValue);
 };
+
+export const formatDateTime = (value) => (
+  value ? new Date(value).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-'
+);

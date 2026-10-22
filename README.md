@@ -3,6 +3,8 @@
 Aplicacao fullstack de loja virtual construida com **React**, **Spring Boot** e **MySQL**.
 O projeto tem duas experiencias principais: uma area publica para visitantes comprarem e uma area administrativa para gerenciar produtos.
 
+![Tela inicial da loja](.github/storefront.png)
+
 ## O Que O Projeto Faz
 
 - Lista produtos disponiveis na loja.
@@ -92,15 +94,20 @@ security/    autenticacao e autorizacao
 - `POST /store` - cria produto, requer admin
 - `PUT /store/{id}` - atualiza produto, requer admin
 - `DELETE /store/{id}` - remove produto, requer admin
-- `GET /auth/admin/me` - valida login admin
-- `POST /auth/visitors` - cadastra visitante
-- `POST /auth/visitors/login` - login simples de visitante
+- `POST /auth/admin/login` - login do admin, devolve o JWT
+- `POST /auth/visitors` - cadastra visitante e ja devolve o JWT
+- `POST /auth/visitors/login` - login do visitante (e-mail e senha), devolve o JWT
 
 ## Autenticacao
 
-A area administrativa e protegida no backend com **HTTP Basic**.
+A API e stateless e usa **JWT** com o resource server do Spring Security.
 
-Credenciais locais padrao:
+- O login (admin ou visitante) devolve `token` e `expiresAt`.
+- As rotas protegidas recebem o token no header `Authorization: Bearer <token>`.
+- O token e assinado com HS256. O `sub` e o id do visitante ou o usuario do admin, e o papel (`ADMIN` ou `VISITOR`) vai no claim `role`.
+- O front guarda a sessao no `localStorage` e desloga sozinho quando o token vence ou a API responde 401.
+
+Credenciais locais padrao do admin:
 
 ```text
 Usuario: admin
@@ -112,9 +119,11 @@ Esses valores podem ser alterados por variaveis de ambiente:
 ```text
 APP_ADMIN_USERNAME
 APP_ADMIN_PASSWORD
+APP_JWT_SECRET      # chave de assinatura, minimo de 32 caracteres
+APP_JWT_EXPIRATION  # validade do token, padrao 2h
 ```
 
-O visitante possui um cadastro simples com nome, e-mail e telefone. Nesta etapa, o login de visitante e feito pelo e-mail.
+O visitante se cadastra com nome, e-mail, senha (guardada com BCrypt) e telefone opcional.
 
 ## Banco De Dados
 

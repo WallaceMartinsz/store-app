@@ -1,6 +1,8 @@
 package com.wallace.store.dto;
 
+import com.wallace.store.model.Category;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,8 +23,11 @@ public record ProductRequest(
         BigDecimal price,
 
         @NotNull(message = "A quantidade do produto e obrigatoria.")
-        @DecimalMin(value = "0", message = "A quantidade deve ser maior que zero.")
+        @Min(value = 0, message = "A quantidade nao pode ser negativa.")
         Integer quantity,
+
+        @NotNull(message = "A categoria do produto e obrigatoria.")
+        Category category,
 
         @NotBlank(message = "A URL da imagem e obrigatoria.")
         @Size(max = 2048, message = "A URL da imagem deve ter no maximo 2048 caracteres.")

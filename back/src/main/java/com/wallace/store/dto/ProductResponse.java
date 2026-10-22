@@ -1,5 +1,7 @@
 package com.wallace.store.dto;
 
+import com.wallace.store.model.Category;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -9,6 +11,7 @@ public record ProductResponse(
         String title,
         BigDecimal price,
         Integer quantity,
+        Category category,
         String img,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

@@ -4,18 +4,21 @@ import com.wallace.store.dto.VisitorLoginRequest;
 import com.wallace.store.dto.VisitorRequest;
 import com.wallace.store.dto.VisitorResponse;
 import com.wallace.store.exception.BusinessException;
-import com.wallace.store.exception.VisitorNotFoundException;
+import com.wallace.store.exception.InvalidCredentialsException;
 import com.wallace.store.model.Visitor;
 import com.wallace.store.repository.VisitorRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class VisitorService {
     private final VisitorRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public VisitorService(VisitorRepository repository) {
+    public VisitorService(VisitorRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -29,6 +32,7 @@ public class VisitorService {
         Visitor visitor = new Visitor();
         visitor.setName(request.name().trim());
         visitor.setEmail(email);
+        visitor.setPassword(passwordEncoder.encode(request.password()));
         visitor.setPhone(normalizeOptional(request.phone()));
 
         return toResponse(repository.save(visitor));
@@ -37,10 +41,17 @@ public class VisitorService {
     @Transactional(readOnly = true)
     public VisitorResponse login(VisitorLoginRequest request) {
         String email = normalizeEmail(request.email());
+        Visitor visitor = repository.findByEmailIgnoreCase(email)
+                .filter((found) -> passwordMatches(request.password(), found.getPassword()))
+                .orElseThrow(InvalidCredentialsException::new);
 
-        return repository.findByEmailIgnoreCase(email)
-                .map(this::toResponse)
-                .orElseThrow(() -> new VisitorNotFoundException(email));
+        return toResponse(visitor);
+    }
+
+    private boolean passwordMatches(String rawPassword, String encodedPassword) {
+        return encodedPassword != null
+                && !encodedPassword.isBlank()
+                && passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     private String normalizeEmail(String email) {
@@ -51,7 +62,6 @@ public class VisitorService {
         if (value == null || value.isBlank()) {
             return null;
         }
-
         return value.trim();
     }
 

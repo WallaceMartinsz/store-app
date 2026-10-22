@@ -10,5 +10,8 @@ front/build/
 # backend
 back/target/
 
+# bruno
+bruno/
+
 # logs
 *.log

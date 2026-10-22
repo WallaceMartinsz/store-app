@@ -32,8 +32,12 @@ public class Product {
     @Column(nullable = false, length = 2048)
     private String img;
 
-    @Column(nullable = false, precision = 10)
+    @Column(nullable = false)
     private Integer quantity;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Category category;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

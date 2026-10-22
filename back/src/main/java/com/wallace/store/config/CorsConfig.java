@@ -20,6 +20,7 @@ public class CorsConfig implements WebMvcConfigurer {
                             HttpMethod.POST.name(),
                             HttpMethod.DELETE.name(),
                             HttpMethod.PUT.name(),
+                            HttpMethod.PATCH.name(),
                             HttpMethod.OPTIONS.name()
                     )
                     .allowedHeaders("*");

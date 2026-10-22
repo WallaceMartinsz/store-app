@@ -1,15 +1,25 @@
 import { useState } from 'react';
+import Button from '../../../components/ui/button';
+import { cardClasses } from '../../../components/ui/card';
+import { Field, Input, Select } from '../../../components/ui/input';
+import { cn } from '../../../lib/utils';
+import { CATEGORIES } from '../categories';
 
 const INITIAL_PRODUCT = {
   name: '',
   title: '',
   price: '',
   quantity: 0,
+  category: '',
   img: ''
 };
 
 const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', onSubmit }) => {
-  const [product, setProduct] = useState({ ...INITIAL_PRODUCT, ...initialValues });
+  const [product, setProduct] = useState({
+    ...INITIAL_PRODUCT,
+    ...initialValues,
+    category: initialValues.category || ''
+  });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,8 +50,12 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
       formErrors.img = 'Informe a URL da imagem.';
     }
 
-    if (!product.quantity || Number(product.quantity) < 0) {
+    if (product.quantity === '' || !Number.isInteger(Number(product.quantity)) || Number(product.quantity) < 0) {
       formErrors.quantity = 'Informe uma quantidade valida.';
+    }
+
+    if (!product.category) {
+      formErrors.category = 'Selecione uma categoria.';
     }
 
     return formErrors;
@@ -61,7 +75,8 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
       setErrors({});
       await onSubmit({
         ...product,
-        price: Number(product.price)
+        price: Number(product.price),
+        quantity: Number(product.quantity)
       });
     } finally {
       setSubmitting(false);
@@ -69,40 +84,39 @@ const ProductForm = ({ initialValues = INITIAL_PRODUCT, submitLabel = 'Salvar', 
   };
 
   return (
-    <form className="product-form" onSubmit={handleSubmit}>
-      <label>
-        Nome
-        <input name="name" type="text" value={product.name} onChange={handleChange} />
-        {errors.name && <span className="field-error">{errors.name}</span>}
-      </label>
+    <form className={cn(cardClasses, 'grid gap-4 p-5')} onSubmit={handleSubmit}>
+      <Field label="Nome" error={errors.name}>
+        <Input name="name" type="text" value={product.name} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Descricao
-        <input name="title" type="text" value={product.title} onChange={handleChange} />
-        {errors.title && <span className="field-error">{errors.title}</span>}
-      </label>
+      <Field label="Descricao" error={errors.title}>
+        <Input name="title" type="text" value={product.title} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Quantidade
-        <input name="quantity" type="number" min="0" value={product.quantity} onChange={handleChange} />
-        {errors.quantity && <span className="field-error">{errors.quantity}</span>}
-      </label>
+      <Field label="Categoria" error={errors.category}>
+        <Select name="category" value={product.category} onChange={handleChange}>
+          <option value="" disabled>Selecione...</option>
+          {CATEGORIES.map((category) => (
+            <option key={category.value} value={category.value}>{category.label}</option>
+          ))}
+        </Select>
+      </Field>
 
-      <label>
-        Preco
-        <input name="price" type="number" min="0" step="0.01" value={product.price} onChange={handleChange} />
-        {errors.price && <span className="field-error">{errors.price}</span>}
-      </label>
+      <Field label="Quantidade" error={errors.quantity}>
+        <Input name="quantity" type="number" min="0" step="1" value={product.quantity} onChange={handleChange} />
+      </Field>
 
-      <label>
-        Imagem
-        <input name="img" type="url" value={product.img} onChange={handleChange} />
-        {errors.img && <span className="field-error">{errors.img}</span>}
-      </label>
+      <Field label="Preco" error={errors.price}>
+        <Input name="price" type="number" min="0" step="0.01" value={product.price} onChange={handleChange} />
+      </Field>
 
-      <button className="button" type="submit" disabled={submitting}>
+      <Field label="Imagem" error={errors.img}>
+        <Input name="img" type="url" value={product.img} onChange={handleChange} />
+      </Field>
+
+      <Button type="submit" disabled={submitting}>
         {submitting ? 'Salvando...' : submitLabel}
-      </button>
+      </Button>
     </form>
   );
 };

@@ -24,7 +24,12 @@ public class Visitor {
     @Column(nullable = false, unique = true, length = 160)
     private String email;
 
-    @Column(length = 30)
+    // Hash BCrypt (60 caracteres), nunca a senha em texto puro
+    @ToString.Exclude
+    @Column(nullable = false, length = 60)
+    private String password;
+
+    @Column(length = 11)
     private String phone;
 
     @Column(updatable = false)
