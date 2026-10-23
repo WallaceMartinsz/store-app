@@ -206,6 +206,7 @@ public class OrderService {
                 order.getId(),
                 order.getVisitor().getId(),
                 order.getVisitor().getName(),
+                order.getVisitor().getEmail(),
                 order.getStatus(),
                 order.getPaymentMethod(),
                 order.getInstallments(),

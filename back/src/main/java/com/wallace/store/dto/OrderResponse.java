@@ -12,6 +12,7 @@ public record OrderResponse(
         UUID id,
         Long visitorId,
         String visitorName,
+        String visitorEmail,
         OrderStatus status,
         PaymentMethod paymentMethod,
         Integer installments,

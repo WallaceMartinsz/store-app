@@ -2,15 +2,17 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, CreditCard, PackageX, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../../cart/CartContext';
-import { MAX_INSTALLMENTS } from '../../features/checkout/payment';
 import Button from '../../components/ui/button';
+import Chip from '../../components/ui/chip';
 import { EmptyState, Feedback } from '../../components/ui/feedback';
 import { Select } from '../../components/ui/input';
 import { SectionHeader } from '../../components/ui/page-heading';
 import { cn } from '../../lib/utils';
+import { MAX_INSTALLMENTS } from '../../features/checkout/payment';
 import ProductCard from '../../features/products/components/ProductCard';
 import { CATEGORIES, findCategoryBySlug } from '../../features/products/categories';
 import useProducts from '../../features/products/hooks/useProducts';
+import { normalizeText } from '../../utils/formatters';
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=1600&q=80';
 const PROMO_IMG = 'https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?w=1600&q=80';
@@ -31,27 +33,12 @@ const benefitBorder = (index) => cn(
 
 const bannerOverlay = 'max-[760px]:bg-none max-[760px]:bg-[rgba(15,17,23,0.8)] max-[760px]:px-6 max-[760px]:py-10';
 
-const Chip = ({ active, onClick, children }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={cn(
-      'cursor-pointer rounded-full border px-3.5 py-1.5 text-[13px] transition-all duration-200 hover:border-primary active:scale-95',
-      active ? 'border-primary bg-primary text-white' : 'border-line bg-transparent text-muted hover:text-foreground'
-    )}
-  >
-    {children}
-  </button>
-);
-
 const SORTERS = {
   relevance: () => 0,
   'price-asc': (a, b) => Number(a.price) - Number(b.price),
   'price-desc': (a, b) => Number(b.price) - Number(a.price),
   name: (a, b) => a.name.localeCompare(b.name, 'pt-BR')
 };
-
-const normalize = (text = '') => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 const StorefrontPage = () => {
   const { addItem } = useCart();
@@ -82,12 +69,12 @@ const StorefrontPage = () => {
   }, [isFiltering, category, query]);
 
   const visibleProducts = useMemo(() => {
-    const term = normalize(query.trim());
+    const term = normalizeText(query.trim());
 
     return products
       .filter((product) => !category || product.category === category.value)
       .filter((product) => !onlyInStock || product.quantity > 0)
-      .filter((product) => !term || normalize(`${product.name} ${product.title}`).includes(term))
+      .filter((product) => !term || normalizeText(`${product.name} ${product.title}`).includes(term))
       // Na ordenacao padrao, produtos esgotados vao para o fim da lista
       .sort((a, b) => (sort === 'relevance' ? (b.quantity > 0) - (a.quantity > 0) : SORTERS[sort](a, b)));
   }, [products, category, onlyInStock, query, sort]);
