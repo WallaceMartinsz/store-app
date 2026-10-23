@@ -61,6 +61,7 @@ public class SecurityConfig {
                         // Visitante cria e ve so os proprios pedidos; admin ve todos e altera o status
                         .requestMatchers(HttpMethod.POST, "/orders").hasRole(Roles.VISITOR)
                         .requestMatchers(HttpMethod.GET, "/orders/me").hasRole(Roles.VISITOR)
+                        .requestMatchers(HttpMethod.POST, "/orders/*/payment").hasRole(Roles.VISITOR)
                         .requestMatchers(HttpMethod.GET, "/orders").hasRole(Roles.ADMIN)
                         .requestMatchers(HttpMethod.GET, "/orders/*").hasAnyRole(Roles.ADMIN, Roles.VISITOR)
                         .requestMatchers(HttpMethod.PATCH, "/orders/*/status").hasRole(Roles.ADMIN)

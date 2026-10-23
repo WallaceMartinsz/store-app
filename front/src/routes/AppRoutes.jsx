@@ -8,6 +8,7 @@ import AdminProductEditPage from '../pages/admin/AdminProductEditPage';
 import AdminProductsPage from '../pages/admin/AdminProductsPage';
 import AdminSalesPage from '../pages/admin/AdminSalesPage';
 import CartPage from '../pages/cart/CartPage';
+import CheckoutPage from '../pages/checkout/CheckoutPage';
 import StorefrontPage from '../pages/store/StorefrontPage';
 import LegacyEditProductRedirect from './LegacyEditProductRedirect';
 import LoginPage from '../pages/login/LoginPage';
@@ -19,6 +20,7 @@ const AppRoutes = () => (
     <Route element={<StoreLayout />}>
       <Route path="/" element={<StorefrontPage />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/profile" element={<ProfilePage />} />
     </Route>
 

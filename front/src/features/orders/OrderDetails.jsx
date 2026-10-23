@@ -1,4 +1,5 @@
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
+import { formatPaymentMethod } from './orderStatus';
 
 const SummaryLine = ({ label, value }) => (
   <div className="flex justify-between gap-3 text-[13px] text-muted">
@@ -21,6 +22,7 @@ const OrderDetails = ({ order }) => (
     <dl className="grid gap-1.5">
       <SummaryLine label="Frete" value={formatCurrency(order.shipping)} />
       <SummaryLine label="Total" value={formatCurrency(order.total)} />
+      {order.paymentMethod && <SummaryLine label="Pagamento" value={formatPaymentMethod(order)} />}
       <SummaryLine label="Pedido em" value={formatDateTime(order.createdAt)} />
       {order.paidAt && <SummaryLine label="Pago em" value={formatDateTime(order.paidAt)} />}
       {order.shippedAt && <SummaryLine label="Enviado em" value={formatDateTime(order.shippedAt)} />}

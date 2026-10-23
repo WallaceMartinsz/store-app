@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import ordersApi, { isUnauthorized } from '../../api/ordersApi';
+import ordersApi, { getApiErrorMessage, isUnauthorized } from '../../api/ordersApi';
 import { useAuth } from '../../auth/AuthContext';
 import Button from '../../components/ui/button';
 import { DataTable, Td, Th } from '../../components/ui/data-table';
@@ -27,7 +27,7 @@ const ProfileList = ({ items }) => (
   </dl>
 );
 
-const OrderSuccess = ({ orderId }) => (
+const OrderSuccess = ({ orderId, paid }) => (
   <div
     className="mb-4 flex animate-success-in items-center gap-4 rounded-xl border border-success/40 bg-success/[0.08] px-5 py-4"
     role="status"
@@ -41,9 +41,11 @@ const OrderSuccess = ({ orderId }) => (
       <path className="animate-draw-check [stroke-dasharray:36] [stroke-dashoffset:36]" d="M15 27l7 7 15-15" />
     </svg>
     <div>
-      <strong className="block text-base text-success">Pedido realizado!</strong>
+      <strong className="block text-base text-success">{paid ? 'Pagamento aprovado!' : 'Pedido realizado!'}</strong>
       <span className="text-sm text-soft">
-        O pedido {shortOrderId(orderId)} foi confirmado. Acompanhe o status abaixo.
+        {paid
+          ? `O pedido ${shortOrderId(orderId)} foi pago. Acompanhe o envio abaixo.`
+          : `O pedido ${shortOrderId(orderId)} esta aguardando pagamento.`}
       </span>
     </div>
   </div>
@@ -54,10 +56,12 @@ const VisitorOrders = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const createdOrderId = location.state?.createdOrderId;
+  const createdOrderPaid = location.state?.paid;
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openOrderId, setOpenOrderId] = useState(createdOrderId || null);
+  const [payingOrderId, setPayingOrderId] = useState(null);
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -83,11 +87,31 @@ const VisitorOrders = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Pagamento simulado de um pedido que ficou pendente (Pix ou boleto pagos depois)
+  const payOrder = async (orderId) => {
+    try {
+      setPayingOrderId(orderId);
+      setError('');
+      const response = await ordersApi.pay(orderId);
+      setOrders((currentOrders) => currentOrders.map((order) => (order.id === orderId ? response.data : order)));
+    } catch (requestError) {
+      if (isUnauthorized(requestError)) {
+        logout();
+        navigate('/login', { state: { mode: 'visitor', from: '/profile' } });
+        return;
+      }
+
+      setError(getApiErrorMessage(requestError, 'Nao foi possivel confirmar o pagamento.'));
+    } finally {
+      setPayingOrderId(null);
+    }
+  };
+
   return (
     <>
       <h2 className="mb-3.5 text-lg font-semibold text-foreground">Meus pedidos</h2>
 
-      {createdOrderId && <OrderSuccess orderId={createdOrderId} />}
+      {createdOrderId && <OrderSuccess orderId={createdOrderId} paid={createdOrderPaid} />}
       {loading && <Feedback>Carregando pedidos...</Feedback>}
       {error && <Feedback variant="error">{error}</Feedback>}
 
@@ -136,6 +160,17 @@ const VisitorOrders = () => {
                   <tr key={`${order.id}-details`}>
                     <Td className="bg-expanded" colSpan={6}>
                       <OrderDetails order={order} />
+                      {order.status === 'PENDENTE' && (
+                        <Button
+                          className="mt-4"
+                          size="sm"
+                          type="button"
+                          disabled={payingOrderId === order.id}
+                          onClick={() => payOrder(order.id)}
+                        >
+                          {payingOrderId === order.id ? 'Confirmando...' : 'Simular pagamento'}
+                        </Button>
+                      )}
                     </Td>
                   </tr>
                 )

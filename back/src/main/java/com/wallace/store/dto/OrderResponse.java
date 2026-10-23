@@ -1,6 +1,7 @@
 package com.wallace.store.dto;
 
 import com.wallace.store.model.OrderStatus;
+import com.wallace.store.model.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,7 +12,10 @@ public record OrderResponse(
         UUID id,
         Long visitorId,
         String visitorName,
+        String visitorEmail,
         OrderStatus status,
+        PaymentMethod paymentMethod,
+        Integer installments,
         List<OrderItemResponse> items,
         BigDecimal shipping,
         BigDecimal total,

@@ -1,47 +1,26 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getApiErrorMessage, isUnauthorized } from '../../api/ordersApi';
 import { useAuth } from '../../auth/AuthContext';
 import { useCart } from '../../cart/CartContext';
 import Button from '../../components/ui/button';
 import { DataTable, Td, Th } from '../../components/ui/data-table';
-import { EmptyState, Feedback, Spinner } from '../../components/ui/feedback';
+import { EmptyState } from '../../components/ui/feedback';
 import { Input } from '../../components/ui/input';
 import { PageHeading } from '../../components/ui/page-heading';
 import { formatCurrency } from '../../utils/formatters';
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { isVisitor, session, logout } = useAuth();
-  const { checkout, items, removeItem, shipping, subtotal, total, updateQuantity } = useCart();
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const { isVisitor, session } = useAuth();
+  const { items, removeItem, shipping, subtotal, total, updateQuantity } = useCart();
 
-  const goToLogin = () => navigate('/login', { state: { mode: 'visitor', from: '/cart' } });
-
-  const handleCheckout = async () => {
-    if (!isVisitor) {
-      goToLogin();
+  // Sem login, entra como visitante e volta direto para o pagamento
+  const handleCheckout = () => {
+    if (isVisitor) {
+      navigate('/checkout');
       return;
     }
 
-    try {
-      setSubmitting(true);
-      setError('');
-      const order = await checkout();
-      navigate('/profile', { state: { createdOrderId: order.id } });
-    } catch (requestError) {
-      if (isUnauthorized(requestError)) {
-        // Token expirado ou invalido: precisa entrar de novo
-        logout();
-        goToLogin();
-        return;
-      }
-
-      setError(getApiErrorMessage(requestError, 'Nao foi possivel finalizar a compra. Tente novamente.'));
-    } finally {
-      setSubmitting(false);
-    }
+    navigate('/login', { state: { mode: 'visitor', from: '/checkout' } });
   };
 
   return (
@@ -50,8 +29,6 @@ const CartPage = () => {
         title="Carrinho"
         description={session?.visitor ? `Comprando como ${session.visitor.name}.` : 'Entre como visitante para finalizar a compra.'}
       />
-
-      {error && <Feedback variant="error">{error}</Feedback>}
 
       {items.length === 0 ? (
         <EmptyState action={<Button as={Link} to="/">Continuar comprando</Button>}>
@@ -103,9 +80,8 @@ const CartPage = () => {
                 <dd>{formatCurrency(total)}</dd>
               </div>
             </dl>
-            <Button type="button" onClick={handleCheckout} disabled={submitting}>
-              {submitting && <Spinner />}
-              {submitting ? 'Finalizando...' : 'Finalizar compra'}
+            <Button type="button" onClick={handleCheckout}>
+              Ir para pagamento
             </Button>
           </div>
         </>
