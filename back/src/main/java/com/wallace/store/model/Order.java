@@ -33,6 +33,14 @@ public class Order {
     @Column(nullable = false, length = 20)
     private OrderStatus status;
 
+    // Pagamento simulado: nenhum dado de cartao chega ao backend
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private PaymentMethod paymentMethod;
+
+    // Parcelas so existem no cartao; Pix e boleto ficam com null
+    private Integer installments;
+
     private BigDecimal shipping;
     private BigDecimal total;
 

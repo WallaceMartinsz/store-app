@@ -79,19 +79,10 @@ public class OrderService {
                 .toList();
     }
 
-    /**
-     * Busca um pedido. Quando {@code ownerVisitorId} e informado (visitante logado),
-     * so retorna se o pedido for dele; pedido de outro cliente responde 404 para nao expor que existe.
-     */
+    // ownerVisitorId preenchido limita a busca aos pedidos do visitante logado
     @Transactional(readOnly = true)
     public OrderResponse findById(UUID id, Long ownerVisitorId) {
-        Order order = findOrder(id);
-
-        if (ownerVisitorId != null && !order.getVisitor().getId().equals(ownerVisitorId)) {
-            throw new OrderNotFoundException(id);
-        }
-
-        return toResponse(order);
+        return toResponse(findOrder(id, ownerVisitorId));
     }
 
     @Transactional
@@ -105,6 +96,8 @@ public class OrderService {
         Order order = new Order();
         order.setVisitor(visitor);
         order.setStatus(OrderStatus.PENDENTE);
+        order.setPaymentMethod(request.paymentMethod());
+        order.setInstallments(installmentsFor(request));
 
         BigDecimal subtotal = BigDecimal.ZERO;
 
@@ -137,8 +130,22 @@ public class OrderService {
     @Transactional
     public OrderResponse updateStatus(UUID id, OrderStatusRequest request) {
         Order order = findOrder(id);
-        OrderStatus newStatus = request.status();
+        changeStatus(order, request.status());
+        return toResponse(order);
+    }
 
+    /**
+     * Pagamento simulado pelo proprio visitante: nao ha gateway, a confirmacao
+     * so leva o pedido pendente para PAGO, com as mesmas regras do admin.
+     */
+    @Transactional
+    public OrderResponse pay(UUID id, Long visitorId) {
+        Order order = findOrder(id, visitorId);
+        changeStatus(order, OrderStatus.PAGO);
+        return toResponse(order);
+    }
+
+    private void changeStatus(Order order, OrderStatus newStatus) {
         if (!ALLOWED_TRANSITIONS.get(order.getStatus()).contains(newStatus)) {
             throw new BusinessException(
                     "Nao e possivel alterar o pedido de " + order.getStatus() + " para " + newStatus + "."
@@ -158,12 +165,33 @@ public class OrderService {
         }
 
         order.setStatus(newStatus);
-        return toResponse(order);
+    }
+
+    private Integer installmentsFor(OrderRequest request) {
+        if (request.paymentMethod() != PaymentMethod.CARTAO) {
+            return null;
+        }
+
+        return request.installments() == null ? 1 : request.installments();
     }
 
     private Order findOrder(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(id));
+    }
+
+    /**
+     * Quando {@code ownerVisitorId} e informado (visitante logado), so retorna se o pedido for dele;
+     * pedido de outro cliente responde 404 para nao expor que existe.
+     */
+    private Order findOrder(UUID id, Long ownerVisitorId) {
+        Order order = findOrder(id);
+
+        if (ownerVisitorId != null && !order.getVisitor().getId().equals(ownerVisitorId)) {
+            throw new OrderNotFoundException(id);
+        }
+
+        return order;
     }
 
     private void restoreStock(Order order) {
@@ -179,6 +207,8 @@ public class OrderService {
                 order.getVisitor().getId(),
                 order.getVisitor().getName(),
                 order.getStatus(),
+                order.getPaymentMethod(),
+                order.getInstallments(),
                 order.getItems().stream().map(this::toItemResponse).toList(),
                 order.getShipping(),
                 order.getTotal(),

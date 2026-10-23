@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, CreditCard, PackageX, RotateCcw, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../../cart/CartContext';
+import { MAX_INSTALLMENTS } from '../../features/checkout/payment';
 import Button from '../../components/ui/button';
 import { EmptyState, Feedback } from '../../components/ui/feedback';
 import { Select } from '../../components/ui/input';
@@ -16,7 +17,7 @@ const PROMO_IMG = 'https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?
 
 const BENEFITS = [
   { icon: Truck, title: 'Frete fixo de R$ 10', text: 'Para todo o Brasil' },
-  { icon: CreditCard, title: 'Até 10x sem juros', text: 'Nos cartões de crédito' },
+  { icon: CreditCard, title: `Até ${MAX_INSTALLMENTS}x sem juros`, text: 'Nos cartões de crédito' },
   { icon: ShieldCheck, title: 'Compra segura', text: 'Seus dados protegidos' },
   { icon: RotateCcw, title: 'Troca em 7 dias', text: 'Sem complicação' }
 ];

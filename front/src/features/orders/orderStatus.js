@@ -5,6 +5,23 @@ export const ORDER_STATUS = {
   CANCELADO: { label: 'Cancelado', className: 'bg-slate-400/15 text-muted' }
 };
 
+export const PAYMENT_METHOD_LABELS = {
+  PIX: 'Pix',
+  CARTAO: 'Cartao de credito',
+  BOLETO: 'Boleto'
+};
+
+// Ex.: "Cartao de credito · 3x"; pedidos antigos, sem forma de pagamento, mostram "-"
+export const formatPaymentMethod = (order) => {
+  const label = PAYMENT_METHOD_LABELS[order.paymentMethod];
+
+  if (!label) {
+    return '-';
+  }
+
+  return order.installments ? `${label} · ${order.installments}x` : label;
+};
+
 // Mesmas transicoes aceitas pelo backend (OrderService.ALLOWED_TRANSITIONS)
 export const NEXT_ACTIONS = {
   PENDENTE: [

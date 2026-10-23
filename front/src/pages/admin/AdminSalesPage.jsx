@@ -8,7 +8,7 @@ import { Select } from '../../components/ui/input';
 import { PageHeading } from '../../components/ui/page-heading';
 import { cn } from '../../lib/utils';
 import OrderDetails from '../../features/orders/OrderDetails';
-import { countItems, NEXT_ACTIONS, shortOrderId } from '../../features/orders/orderStatus';
+import { countItems, formatPaymentMethod, NEXT_ACTIONS, shortOrderId } from '../../features/orders/orderStatus';
 import StatusBadge from '../../features/orders/StatusBadge';
 import { formatCurrency, formatDateTime } from '../../utils/formatters';
 
@@ -117,6 +117,7 @@ const AdminSalesPage = () => {
               <Th>Data</Th>
               <Th>Itens</Th>
               <Th>Total</Th>
+              <Th>Pagamento</Th>
               <Th>Status</Th>
               <Th>Ações</Th>
             </tr>
@@ -142,6 +143,7 @@ const AdminSalesPage = () => {
                   <Td>{formatDateTime(order.createdAt)}</Td>
                   <Td>{countItems(order)}</Td>
                   <Td>{formatCurrency(order.total)}</Td>
+                  <Td>{formatPaymentMethod(order)}</Td>
                   <Td><StatusBadge status={order.status} /></Td>
                   <Td>
                     <div className="flex flex-wrap gap-1.5">
@@ -163,7 +165,7 @@ const AdminSalesPage = () => {
                 </tr>,
                 isOpen && (
                   <tr key={`${order.id}-details`}>
-                    <Td className="bg-expanded" colSpan={7}>
+                    <Td className="bg-expanded" colSpan={8}>
                       <OrderDetails order={order} />
                     </Td>
                   </tr>

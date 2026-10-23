@@ -41,7 +41,7 @@ const LoginPage = () => {
   const isRegister = visitorAction === 'register';
 
   if (session) {
-    return <Navigate to={isAdmin ? '/admin' : '/profile'} replace />;
+    return <Navigate to={isAdmin ? '/admin' : '/'} replace />;
   }
 
   const changeVisitorAction = (action) => {
@@ -99,7 +99,7 @@ const LoginPage = () => {
         await loginVisitor({ email: visitorForm.email, password: visitorForm.password });
       }
 
-      navigate(location.state?.from || '/profile');
+      navigate(location.state?.from || '/');
     } catch (requestError) {
       const data = requestError.response?.data;
       setFieldErrors(data?.fields || {});

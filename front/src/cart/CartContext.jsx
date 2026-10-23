@@ -106,9 +106,11 @@ export const CartProvider = ({ children }) => {
   };
 
   // Envia o carrinho para a API; o backend busca precos, valida estoque e calcula o total
-  const checkout = async () => {
+  const checkout = async (paymentMethod, installments) => {
     const response = await ordersApi.create(
-      items.map((item) => ({ productId: item.product.id, quantity: item.quantity }))
+      items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+      paymentMethod,
+      installments
     );
 
     clearCart();

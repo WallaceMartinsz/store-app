@@ -5,9 +5,8 @@ import Button from '../../../components/ui/button';
 import { cardClasses } from '../../../components/ui/card';
 import { cn } from '../../../lib/utils';
 import { formatCurrency } from '../../../utils/formatters';
+import { MAX_INSTALLMENTS } from '../../checkout/payment';
 import { getCategoryLabel } from '../categories';
-
-const INSTALLMENTS = 10;
 
 const badgeClasses = 'absolute left-2.5 top-2.5 rounded px-2 py-[3px] text-[11px] font-semibold uppercase tracking-[0.04em]';
 
@@ -71,7 +70,7 @@ const ProductCard = ({ product, index = 0, variant = 'store', onAddToCart, onDel
             </span>
           ) : (
             <span className="text-xs text-muted">
-              ou {INSTALLMENTS}x de {formatCurrency(Number(product.price) / INSTALLMENTS)} sem juros
+              ou {MAX_INSTALLMENTS}x de {formatCurrency(Number(product.price) / MAX_INSTALLMENTS)} sem juros
             </span>
           )}
         </div>

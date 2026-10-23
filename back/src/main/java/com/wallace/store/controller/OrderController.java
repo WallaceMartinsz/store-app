@@ -50,6 +50,11 @@ public class OrderController {
         return ResponseEntity.created(location).body(order);
     }
 
+    @PostMapping("/{id}/payment")
+    public ResponseEntity<OrderResponse> payOrder(@PathVariable UUID id, Authentication authentication) {
+        return ResponseEntity.ok(orderService.pay(id, visitorId(authentication)));
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable UUID id,
